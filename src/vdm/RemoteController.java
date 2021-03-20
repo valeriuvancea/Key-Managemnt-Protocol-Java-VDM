@@ -7,11 +7,13 @@ import org.overture.interpreter.debug.RemoteControl;
 import org.overture.interpreter.debug.RemoteInterpreter;
 
 public class RemoteController implements RemoteControl {
+    public static RemoteInterpreter interpreter;
+
     public void run(RemoteInterpreter interpreter) throws Exception {
+        RemoteController.interpreter = interpreter;
         System.out.println("Remote controller run");
         System.out.println("The answer is " + interpreter.execute("1 + 1"));
-        interpreter.create("controller", "new vdm_Controller()");
-        System.out.println(interpreter.execute("controller.a(4)"));
+        interpreter.create("controller", "new vdm_Controller(\"controller\")");
         TimerTask task = new TimerTask() {
             public void run() {
                 try {
@@ -27,4 +29,5 @@ public class RemoteController implements RemoteControl {
         long delay = 2000L;
         timer.schedule(task, delay);
     }
+
 }

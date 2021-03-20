@@ -1,0 +1,12 @@
+class Equipment
+operations
+public Equipment: seq of char ==> Equipment
+Equipment(vdmVariableName) == initialize(vdmVariableName);
+
+public initialize: seq of char ==> ()
+initialize(vdmVariableName) == is not yet specified;
+
+public init: () ==> ()
+init() == is not yet specified;
+
+end Equipment

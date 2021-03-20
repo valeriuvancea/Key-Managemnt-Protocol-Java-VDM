@@ -1,4 +1,4 @@
-class vdm_Controller
+class vdm_Controller is subclass of Equipment
 types
 -- TODO Define types here
 values
@@ -6,13 +6,17 @@ values
 instance variables
 
 operations
+public vdm_Controller: seq of char ==> vdm_Controller
+vdm_Controller(vdmVariableName) == Equipment(vdmVariableName);
+
+
 public getValue : int ==> int
 getValue (id) == is not yet specified
-post RESULT = 3;
+post RESULT = 5;
 
 operations
-public a:int ==> int
-a(b) == return b;
+public a:seq of char * seq of char ==> seq of char
+a(b,c) == is not yet specified;
 
 functions
 -- TODO Define functions here
