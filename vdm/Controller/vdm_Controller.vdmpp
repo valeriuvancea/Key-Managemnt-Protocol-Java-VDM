@@ -11,8 +11,7 @@ vdm_Controller(vdmVariableName) == Equipment(vdmVariableName);
 
 
 public getValue : int ==> int
-getValue (id) == is not yet specified
-post RESULT = 5;
+getValue (id) == is not yet specified;
 
 operations
 public a:seq of char * seq of char ==> seq of char
