@@ -1,3 +1,4 @@
 .metadata
 generated
 keyManagementProtocol.jar
+build/*

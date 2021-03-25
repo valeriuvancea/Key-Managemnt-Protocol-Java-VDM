@@ -2,18 +2,71 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "build_java",
 			"type": "java",
-			"label": "Build Java",
-			"targetPath": "${workspaceFolder}/vdm/Controller/lib/keyManagementProtocol.jar",
+			"targetPath": "${workspaceFolder}/build/${config:java_jar}",
 			"elements": [
 				"${compileOutput}",
 				"${dependencies}"
 			],
-			"problemMatcher": [],
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-		}
+			"mainClass": "Main",
+			"isBackground": false
+		},
+		{
+			"label": "upload_java_to_keyvault",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:key_vault_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "start_java_key_vault",
+			"isBackground": true,
+			"type": "shell",
+			"command": "ssh pi@${config:key_vault_address} -i ${config:identity_file} java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:key_vault_address}:8000 -jar ${config:pi_deployment_folder}/${config:java_jar}",
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".",
+						"endsPattern": ".",
+					}
+				}
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": true
+			},
+			"dependsOn": [
+				"upload_java_to_keyvault",
+			]
+		},
+		{
+			"label": "stop_java_key_vault",
+			"type": "shell",
+			"command": "ssh pi@${config:key_vault_address} -i ${config:identity_file} killall -9 java",
+			"presentation": {
+				"echo": true,
+				"reveal": "never",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
 	]
 }
