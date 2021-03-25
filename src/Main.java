@@ -6,8 +6,9 @@ public class Main {
         System.out.println("Start");
 
         while (true) {
-            Thread.sleep(1000);
-            System.out.println("I really need to chill out now");
+            Thread.sleep(3000);
+            String result = Common.RunCommand("ping -c 4 www.stackabuse.com");
+            System.out.println(result);
         }
     }
 }

@@ -1,6 +1,9 @@
 {
     "java_jar": "au_thesis_java_mockup.jar",
-    "pi_deployment_folder": "/home/pi/Desktop/try",
+    "pi_deployment_folder": "/home/pi/au_thesis_java_poc",
     "key_vault_address": "192.168.1.99",
+    "controller_1_address": "192.168.1.135",
+    "controller_2_address": "192.168.1.113",
+    "pink_address": "192.168.1.253",
     "identity_file": "%USERPROFILE%\\.ssh\\pi_key"
 }

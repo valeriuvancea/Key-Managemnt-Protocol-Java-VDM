@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"build": true,
+			"lib": true,
+			".gitignore": true,
+			"README.md": true,
+		}
+	}
+}

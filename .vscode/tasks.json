@@ -22,6 +22,21 @@
 			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:key_vault_address}:${config:pi_deployment_folder}",
 		},
 		{
+			"label": "upload_java_to_controller_1",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:controller_1_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "upload_java_to_controller_2",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:controller_2_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "upload_java_to_pink",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:pink_address}:${config:pi_deployment_folder}",
+		},
+		{
 			"label": "start_java_key_vault",
 			"isBackground": true,
 			"type": "shell",
