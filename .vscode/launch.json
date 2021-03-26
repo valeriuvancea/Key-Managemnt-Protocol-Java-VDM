@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "manufacturer.Main",
+            "projectName": "au_thesis_java_mockup_ef08020c"
+        },
+        {
+            "type": "java",
             "name": "Launch VDM Main",
             "request": "launch",
             "mainClass": "org.overture.interpreter.VDMJ",
@@ -15,7 +22,7 @@
             "type": "java",
             "name": "Launch Java Main",
             "request": "launch",
-            "mainClass": "Main",
+            "mainClass": "Main"
         },
         {
             "type": "java",

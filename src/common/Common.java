@@ -1,3 +1,5 @@
+package common;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,10 +10,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Base64;
 import java.util.Enumeration;
-import java.util.Hashtable;
-
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
@@ -125,5 +124,14 @@ public class Common {
         }
 
         return output;
+    }
+
+    public static Pair<byte[], byte[]> GenerateKeyPair(String pkFilePath, String skFilePath)
+            throws IOException, InterruptedException {
+        Common.RunCommand(String.format("openssl genrsa -out %s 2048", pkFilePath));
+        Common.RunCommand(String.format("openssl rsa -in %s -pubout -out %s -outform PEM", pkFilePath, skFilePath));
+        byte[] pkBytes = Common.ReadFromFile(pkFilePath);
+        byte[] skBytes = Common.ReadFromFile(skFilePath);
+        return new Pair<byte[], byte[]>(pkBytes, skBytes);
     }
 }
