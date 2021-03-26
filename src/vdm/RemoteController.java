@@ -13,6 +13,7 @@ public class RemoteController implements RemoteControl {
         RemoteController.interpreter = interpreter;
         System.out.println("Remote controller run");
         interpreter.create("controller", "new vdm_Controller(\"controller\")");
+        interpreter.execute("controller.init()");
     }
 
 }

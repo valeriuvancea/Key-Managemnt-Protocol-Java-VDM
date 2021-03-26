@@ -10,6 +10,12 @@
             "request": "launch",
             "mainClass": "org.overture.interpreter.VDMJ",
             "args": "-vdmpp -i -remote vdm.RemoteController \"${workspaceFolder}/vdm/Controller/\""
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "test.Main",
         }
     ]
 }
