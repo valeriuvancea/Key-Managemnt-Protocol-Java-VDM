@@ -6,9 +6,13 @@ public class Main {
         System.out.println("Start");
 
         while (true) {
-            Thread.sleep(3000);
-            byte[] dummyBytes = Common.ReadFromFile("store/pk_kv");
-            System.out.println(dummyBytes.toString());
+            byte[] bytes = new byte[] { (byte) 0xAB, (byte) 0xF0, (byte) 0x0F, (byte) 0xAA, (byte) 0x00, (byte) 0x11,
+                    (byte) 0xFF };
+            String text = Common.ByteArrayToString(bytes);
+            System.out.println(text);
+            byte[] bytesAgain = Common.StringToByteArray(text);
+            System.out.println(Common.ByteArrayToString(bytesAgain));
+            Thread.sleep(1000);
         }
     }
 }

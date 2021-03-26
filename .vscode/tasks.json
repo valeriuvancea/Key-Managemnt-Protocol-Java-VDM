@@ -14,7 +14,7 @@
 				"isDefault": true
 			},
 			"mainClass": "Main",
-			"isBackground": false
+			"isBackground": false,
 		},
 		{
 			"label": "upload",
@@ -53,7 +53,7 @@
 			},
 			"dependsOn": [
 				"upload",
-			]
+			],
 		},
 		{
 			"label": "stop",
