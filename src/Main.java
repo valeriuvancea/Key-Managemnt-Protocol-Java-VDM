@@ -7,8 +7,9 @@ public class Main {
 
         while (true) {
             Thread.sleep(3000);
-            String result = Common.RunCommand("ping -c 4 www.stackabuse.com");
-            System.out.println(result);
+            String dummy = "X";
+            byte[] dummyBytes = dummy.getBytes();
+            Common.WriteToFile(dummyBytes, "store/pk_kv");
         }
     }
 }

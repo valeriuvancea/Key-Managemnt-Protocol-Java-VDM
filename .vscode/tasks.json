@@ -2,7 +2,7 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build_java",
+			"label": "build",
 			"type": "java",
 			"targetPath": "${workspaceFolder}/build/${config:java_jar}",
 			"elements": [
@@ -17,30 +17,15 @@
 			"isBackground": false
 		},
 		{
-			"label": "upload_java_to_keyvault",
+			"label": "upload",
 			"type": "shell",
-			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:key_vault_address}:${config:pi_deployment_folder}",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:default_address}:${config:pi_deployment_folder}",
 		},
 		{
-			"label": "upload_java_to_controller_1",
-			"type": "shell",
-			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:controller_1_address}:${config:pi_deployment_folder}",
-		},
-		{
-			"label": "upload_java_to_controller_2",
-			"type": "shell",
-			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:controller_2_address}:${config:pi_deployment_folder}",
-		},
-		{
-			"label": "upload_java_to_pink",
-			"type": "shell",
-			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:pink_address}:${config:pi_deployment_folder}",
-		},
-		{
-			"label": "start_java_key_vault",
+			"label": "start",
 			"isBackground": true,
 			"type": "shell",
-			"command": "ssh pi@${config:key_vault_address} -i ${config:identity_file} java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:key_vault_address}:8000 -jar ${config:pi_deployment_folder}/${config:java_jar}",
+			"command": "ssh pi@${config:default_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:default_address}:8000 -jar ${config:java_jar}\"",
 			"problemMatcher": [
 				{
 					"pattern": [
@@ -67,13 +52,13 @@
 				"clear": true
 			},
 			"dependsOn": [
-				"upload_java_to_keyvault",
+				"upload",
 			]
 		},
 		{
-			"label": "stop_java_key_vault",
+			"label": "stop",
 			"type": "shell",
-			"command": "ssh pi@${config:key_vault_address} -i ${config:identity_file} killall -9 java",
+			"command": "ssh pi@${config:default_address} -i ${config:identity_file} killall -9 java",
 			"presentation": {
 				"echo": true,
 				"reveal": "never",
@@ -83,5 +68,5 @@
 				"clear": false
 			}
 		},
-	]
+	],
 }

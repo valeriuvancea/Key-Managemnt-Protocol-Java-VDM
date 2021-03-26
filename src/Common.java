@@ -1,5 +1,8 @@
-import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Common {
@@ -16,5 +19,13 @@ public class Common {
         }
 
         return outputBuilder.toString();
+    }
+
+    public static void WriteToFile(byte[] buffer, String filePath) throws IOException {
+        File file = new File(filePath);
+        file.createNewFile();
+        FileOutputStream output = new FileOutputStream(file);
+        output.write(buffer);
+        output.close();
     }
 }

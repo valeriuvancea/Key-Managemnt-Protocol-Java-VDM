@@ -24,8 +24,8 @@
             "request": "attach",
             "hostName": "192.168.1.99",
             "port": 8000,
-            "preLaunchTask": "start_java_key_vault",
-            "postDebugTask": "stop_java_key_vault"
+            "preLaunchTask": "start",
+            "postDebugTask": "stop"
         }
     ]
 }
