@@ -15,6 +15,10 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class Common {
+    private static final String TEMP_KEY_FILE = "temp/temp_key";
+    private static final String TEMP_CSR_FILE = "temp/temp_csr";
+    private static final String TEMP_CERT_FILE = "temp/temp_cert";
+
     private static final BidiMap<String, Byte> HEX_MAP = new DualHashBidiMap() {
         {
             put("0", (byte) 0x0);
@@ -48,7 +52,8 @@ public class Common {
             outputBuilder.append(System.lineSeparator());
         }
 
-        return outputBuilder.toString();
+        String output = outputBuilder.toString();
+        return output;
     }
 
     public static void WriteToFile(byte[] buffer, String filePath) throws IOException {
@@ -128,10 +133,58 @@ public class Common {
 
     public static Pair<byte[], byte[]> GenerateKeyPair(String pkFilePath, String skFilePath)
             throws IOException, InterruptedException {
-        Common.RunCommand(String.format("openssl genrsa -out %s 2048", pkFilePath));
-        Common.RunCommand(String.format("openssl rsa -in %s -pubout -out %s -outform PEM", pkFilePath, skFilePath));
+        Common.RunCommand(String.format("openssl genrsa -out %s 2048", skFilePath));
+        Common.RunCommand(String.format("openssl rsa -in %s -pubout -out %s -outform PEM", skFilePath, pkFilePath));
         byte[] pkBytes = Common.ReadFromFile(pkFilePath);
         byte[] skBytes = Common.ReadFromFile(skFilePath);
         return new Pair<byte[], byte[]>(pkBytes, skBytes);
+    }
+
+    public static byte[] GenerateSelfSignedCertificate(String skFilePath, String certFilePath, String issuerName)
+            throws IOException, InterruptedException {
+        Common.RunCommand(
+                String.format("openssl req -x509 -new -nodes -key %s -sha256 -days 1825 -subj \"/CN=%s\" -out %s",
+                        skFilePath, issuerName, certFilePath));
+        byte[] certBytes = Common.ReadFromFile(certFilePath);
+        return certBytes;
+    }
+
+    public static byte[] GenerateCertificate(String certCertificateAuthorityFilePath,
+            String skCertificateAuthorityFilePath, byte[] pkBytes, String pkOwnerName, int daysValid)
+            throws IOException, InterruptedException {
+        /*
+         * To do this in command line, a signing request is needed. Signing request
+         * needs both the private and public keys. We don't have them. Therefore,
+         * signing request is generated for the ca private and public keys. Then, a
+         * certificate is generated using this dummy signing requests and a command
+         * which forces it to use the public key that actually needs to be signed.
+         */
+        try {
+            Common.WriteToFile(pkBytes, Common.TEMP_KEY_FILE);
+            /* Generate dummy signing request. */
+            Common.RunCommand(String.format("openssl req -new -sha256 -key %s -subj \"/CN=%s\" -out %s",
+                    skCertificateAuthorityFilePath, pkOwnerName, Common.TEMP_CSR_FILE));
+            /*
+             * Generate certificate by forcing to use different public key than the one in
+             * the dummy signing request.
+             */
+            Common.RunCommand(String.format(
+                    "openssl x509 -req -in %s -force_pubkey %s -CA %s -CAkey %s -CAcreateserial -out %s  -days %s -sha256",
+                    Common.TEMP_CSR_FILE, Common.TEMP_KEY_FILE, certCertificateAuthorityFilePath,
+                    skCertificateAuthorityFilePath, Common.TEMP_CERT_FILE, daysValid));
+            byte[] certBytes = Common.ReadFromFile(Common.TEMP_CERT_FILE);
+            return certBytes;
+        } finally {
+            Common.RemoveFile(Common.TEMP_KEY_FILE, false);
+            Common.RemoveFile(Common.TEMP_CSR_FILE, false);
+            Common.RemoveFile(Common.TEMP_CERT_FILE, false);
+        }
+    }
+
+    public static byte[] GenerateCertificate(String certCertificateAuthorityFilePath,
+            String skCertificateAuthorityFilePath, byte[] pkBytes, String pkOwnerName)
+            throws IOException, InterruptedException {
+        return Common.GenerateCertificate(certCertificateAuthorityFilePath, skCertificateAuthorityFilePath, pkBytes,
+                pkOwnerName, 365);
     }
 }
