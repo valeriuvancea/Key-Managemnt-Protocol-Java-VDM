@@ -28,4 +28,13 @@ public class Common {
         output.write(buffer);
         output.close();
     }
+
+    public static byte[] ReadFromFile(String filePath) throws IOException {
+        File file = new File(filePath);
+        FileInputStream input = new FileInputStream(file);
+        byte[] output = new byte[(int) file.length()];
+        input.read(output);
+        input.close();
+        return output;
+    }
 }

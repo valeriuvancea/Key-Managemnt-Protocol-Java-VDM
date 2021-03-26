@@ -7,9 +7,8 @@ public class Main {
 
         while (true) {
             Thread.sleep(3000);
-            String dummy = "X";
-            byte[] dummyBytes = dummy.getBytes();
-            Common.WriteToFile(dummyBytes, "store/pk_kv");
+            byte[] dummyBytes = Common.ReadFromFile("store/pk_kv");
+            System.out.println(dummyBytes.toString());
         }
     }
 }
