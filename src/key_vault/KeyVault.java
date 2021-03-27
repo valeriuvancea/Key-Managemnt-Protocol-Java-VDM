@@ -8,11 +8,16 @@ public class KeyVault {
 
     private static final String SK_KV_FILE_PATH = "store/sk_kv";
     private static final String PK_KV_FILE_PATH = "store/pk_kv";
+    private static final String CERT_KV_FILE_PATH = "store/cert_kv";
+
+    private byte[] certKeyVault;
 
     public KeyVault() throws IOException, InterruptedException {
+        this.certKeyVault = Common.ReadFromFile(KeyVault.CERT_KV_FILE_PATH);
         byte[] data = "Hello".getBytes();
         byte[] signature = Common.SignData(SK_KV_FILE_PATH, data);
         System.out.println(Common.ByteArrayToString(signature));
+        System.out.println(Common.IsSignatureValid(this.certKeyVault, data, signature));
     }
 
     private byte[] GenerateRandomByteArray(int numberOfBytes) throws IOException, InterruptedException {

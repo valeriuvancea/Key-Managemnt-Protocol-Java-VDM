@@ -240,4 +240,51 @@ public class Common {
             Common.RemoveFile(Common.TEMP_SIGN_FILE);
         }
     }
+
+    public static byte[] ExtractKeyFromCertificate(byte[] certificate) throws IOException, InterruptedException {
+        try {
+            Common.WriteToFile(certificate, Common.TEMP_CERT_FILE);
+            Common.RunCommand(String.format("openssl x509 -pubkey -out %s -noout -in %s", Common.TEMP_KEY_FILE,
+                    Common.TEMP_CERT_FILE));
+            return Common.ReadFromFile(Common.TEMP_KEY_FILE);
+        } finally {
+            Common.RemoveFile(Common.TEMP_KEY_FILE);
+            Common.RemoveFile(Common.TEMP_CERT_FILE);
+        }
+    }
+
+    public static boolean IsSignatureValid(byte[] certificate, byte[] data, byte[] signature)
+            throws IOException, InterruptedException {
+        /*
+         * Did not find other way to verify signature generated using tpm module other
+         * than the openssl command line below. Haven't figure how to provide inputs to
+         * the command line through stdin either. Therefore, a hacky solution for now -
+         * save required values into files, perform verification, remove files, return
+         * result...
+         */
+        try {
+            byte[] key = Common.ExtractKeyFromCertificate(certificate);
+            byte[] digest = Common.GetDataDigest(data);
+            Common.WriteToFile(signature, Common.TEMP_SIGN_FILE);
+            Common.WriteToFile(digest, Common.TEMP_DATA_FILE);
+            Common.WriteToFile(key, Common.TEMP_KEY_FILE);
+
+            String result = Common
+                    .RunCommand(String.format("openssl pkeyutl -pubin -inkey %s -verify -in %s -sigfile %s",
+                            Common.TEMP_KEY_FILE, Common.TEMP_DATA_FILE, Common.TEMP_SIGN_FILE));
+
+            if (result.contains("Signature Verified Successfully")) {
+                return true;
+            } else {
+                return false;
+            }
+
+            System.out.println(result);
+            return false;
+        } finally {
+            Common.RemoveFile(Common.TEMP_SIGN_FILE);
+            Common.RemoveFile(Common.TEMP_DATA_FILE);
+            Common.RemoveFile(Common.TEMP_KEY_FILE);
+        }
+    }
 }
