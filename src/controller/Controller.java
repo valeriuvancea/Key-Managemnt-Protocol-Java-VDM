@@ -21,7 +21,7 @@ public class Controller {
 
         if (Common.FileExists(Controller.SK_M_FILE_PATH)) {
             /* Hackish way for now */
-            Pair<byte[], byte[]> controllerKeys = this.GenerateKeyPairTpm(Controller.PK_CT_FILE_PATH,
+            Pair<byte[], byte[]> controllerKeys = this.GenerateKeyPairTPM(Controller.PK_CT_FILE_PATH,
                     Controller.SK_CT_FILE_PATH);
             byte[] certController = Common.GenerateCertificate(Controller.CERT_M_FILE_PATH, Controller.SK_M_FILE_PATH,
                     controllerKeys.GetFirst(), this.idString);
@@ -31,7 +31,7 @@ public class Controller {
         }
     }
 
-    private Pair<byte[], byte[]> GenerateKeyPairTpm(String pkFilePath, String skFilePath)
+    private Pair<byte[], byte[]> GenerateKeyPairTPM(String pkFilePath, String skFilePath)
             throws IOException, InterruptedException {
         Common.RunCommand(String.format("tpm2tss-genkey -a rsa -s 2048 %s", skFilePath));
         Common.RunCommand(
@@ -40,5 +40,22 @@ public class Controller {
         byte[] pkBytes = Common.ReadFromFile(pkFilePath);
         byte[] skBytes = Common.ReadFromFile(skFilePath);
         return new Pair<byte[], byte[]>(pkBytes, skBytes);
+    }
+
+    private byte[] GenerateRandomByteArrayTPM(int numberOfBytes) throws IOException, InterruptedException {
+        try {
+            Common.RunCommand(String.format("openssl rand -out %s -engine tpm2tss -hex %s", Common.TEMP_DATA_FILE,
+                    numberOfBytes));
+            String output = new String(Common.ReadFromFile(Common.TEMP_DATA_FILE));
+            byte[] bytes = Common.StringToByteArray(output);
+            return bytes;
+        } finally {
+            Common.RemoveFile(Common.TEMP_DATA_FILE, false);
+        }
+
+    }
+
+    private byte[] GenerateRandomByteArrayTPM() throws IOException, InterruptedException {
+        return this.GenerateRandomByteArrayTPM(128);
     }
 }

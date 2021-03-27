@@ -15,9 +15,10 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class Common {
-    private static final String TEMP_KEY_FILE = "temp/temp_key";
-    private static final String TEMP_CSR_FILE = "temp/temp_csr";
-    private static final String TEMP_CERT_FILE = "temp/temp_cert";
+    public static final String TEMP_KEY_FILE = "temp/temp_key";
+    public static final String TEMP_CSR_FILE = "temp/temp_csr";
+    public static final String TEMP_CERT_FILE = "temp/temp_cert";
+    public static final String TEMP_DATA_FILE = "temp/temp_data";
 
     private static final BidiMap<String, Byte> HEX_MAP = new DualHashBidiMap() {
         {
@@ -31,12 +32,12 @@ public class Common {
             put("7", (byte) 0x7);
             put("8", (byte) 0x8);
             put("9", (byte) 0x9);
-            put("A", (byte) 0xA);
-            put("B", (byte) 0xB);
-            put("C", (byte) 0xC);
-            put("D", (byte) 0xD);
-            put("E", (byte) 0xE);
-            put("F", (byte) 0xF);
+            put("a", (byte) 0xA);
+            put("b", (byte) 0xB);
+            put("c", (byte) 0xC);
+            put("d", (byte) 0xD);
+            put("e", (byte) 0xE);
+            put("f", (byte) 0xF);
         }
     };
 
