@@ -23,6 +23,7 @@ public class Common {
     public static final String TEMP_CERT_FILE = "temp/temp_cert";
     public static final String TEMP_DATA_FILE = "temp/temp_data";
     public static final String TEMP_SIGN_FILE = "temp/temp_sign";
+    public static final String TEMP_CIPHER_FILE = "temp/temp_cipher";
 
     private static final BidiMap<String, Byte> HEX_MAP = new DualHashBidiMap() {
         {
@@ -298,6 +299,23 @@ public class Common {
             }
         } finally {
             Common.RemoveFile(Common.TEMP_CERT_FILE);
+        }
+    }
+
+    public static byte[] Encrypt(byte[] cert, byte[] data) throws IOException, InterruptedException {
+        try {
+            byte[] key = Common.ExtractKeyFromCertificate(cert);
+            Common.WriteToFile(data, Common.TEMP_DATA_FILE);
+            Common.WriteToFile(key, Common.TEMP_KEY_FILE);
+
+            Common.RunCommand(String.format("openssl rsautl -encrypt -inkey %s -pubin -in %s -out %s",
+                    Common.TEMP_KEY_FILE, Common.TEMP_DATA_FILE, Common.TEMP_CIPHER_FILE));
+            return Common.ReadFromFile(Common.TEMP_CIPHER_FILE);
+
+        } finally {
+            Common.RemoveFile(Common.TEMP_KEY_FILE);
+            Common.RemoveFile(Common.TEMP_DATA_FILE);
+            Common.RemoveFile(Common.TEMP_CIPHER_FILE);
         }
     }
 }

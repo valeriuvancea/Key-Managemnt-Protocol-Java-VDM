@@ -15,7 +15,11 @@ public class KeyVault {
 
     public KeyVault() throws IOException, InterruptedException {
         this.certKeyVault = Common.ReadFromFile(KeyVault.CERT_KV_FILE_PATH);
-        System.out.println(Common.IsCertificateValid(this.certKeyVault, KeyVault.CERT_M_FILE_PATH));
+        byte[] data = "Hello world".getBytes();
+        byte[] cipher = Common.Encrypt(this.certKeyVault, data);
+        byte[] text = this.Decrypt(KeyVault.SK_KV_FILE_PATH, cipher);
+        String message = new String(text);
+        System.out.println(message);
     }
 
     private byte[] GenerateRandomByteArray(int numberOfBytes) throws IOException, InterruptedException {
@@ -32,6 +36,18 @@ public class KeyVault {
 
     private byte[] GenerateRandomByteArray() throws IOException, InterruptedException {
         return this.GenerateRandomByteArray(128);
+    }
+
+    private byte[] Decrypt(String skFilePath, byte[] cipher) throws IOException, InterruptedException {
+        try {
+            Common.WriteToFile(cipher, Common.TEMP_CIPHER_FILE);
+            Common.RunCommand(String.format("openssl rsautl -decrypt -inkey %s -in %s -out %s", skFilePath,
+                    Common.TEMP_CIPHER_FILE, Common.TEMP_DATA_FILE));
+            return Common.ReadFromFile(Common.TEMP_DATA_FILE);
+        } finally {
+            Common.RemoveFile(Common.TEMP_CIPHER_FILE, false);
+            Common.RemoveFile(Common.TEMP_DATA_FILE, false);
+        }
     }
 
 }
