@@ -5,10 +5,10 @@
     "controller_1_address": "192.168.1.135",
     "controller_2_address": "192.168.1.113",
     "pink_address": "192.168.1.253",
-    "default_address": "192.168.1.99",
+    "default_address": "192.168.1.135",
     "identity_file": "%USERPROFILE%\\.ssh\\pi_key",
     "controller_1_store": "controller_1_store",
     "controller_2_store": "controller_2_store",
     "key_vault_store": "key_vault_store",
-    "sotre_deployment_folder": "store"
+    "store_deployment_folder": "store"
 }

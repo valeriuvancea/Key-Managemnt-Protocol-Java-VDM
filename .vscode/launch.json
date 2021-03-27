@@ -8,6 +8,13 @@
             "type": "java",
             "name": "Launch Main",
             "request": "launch",
+            "mainClass": "controller.Main",
+            "projectName": "au_thesis_java_mockup_ef08020c"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
             "mainClass": "manufacturer.Main",
             "projectName": "au_thesis_java_mockup_ef08020c"
         },
@@ -26,10 +33,10 @@
         },
         {
             "type": "java",
-            "name": "key_vault",
+            "name": "pi",
             "projectName": "",
             "request": "attach",
-            "hostName": "192.168.1.99",
+            "hostName": "${config:default_address}",
             "port": 8000,
             "preLaunchTask": "start",
             "postDebugTask": "stop"

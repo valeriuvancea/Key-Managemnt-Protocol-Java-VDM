@@ -41,12 +41,21 @@ public class Common {
     };
 
     public static String RunCommand(String command) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(command);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String[] commands = command.split("\\s+");
+        Process process = Runtime.getRuntime().exec(commands);
+
         process.waitFor();
 
         String line = "";
         StringBuilder outputBuilder = new StringBuilder();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = reader.readLine()) != null) {
+            outputBuilder.append(line);
+            outputBuilder.append(System.lineSeparator());
+        }
+
+        reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         while ((line = reader.readLine()) != null) {
             outputBuilder.append(line);
             outputBuilder.append(System.lineSeparator());
@@ -58,6 +67,12 @@ public class Common {
 
     public static void WriteToFile(byte[] buffer, String filePath) throws IOException {
         File file = new File(filePath);
+        File directory = new File(file.getParent());
+
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
         file.createNewFile();
         FileOutputStream output = new FileOutputStream(file);
         output.write(buffer);
@@ -131,6 +146,10 @@ public class Common {
         return output;
     }
 
+    public static boolean FileExists(String filePath) {
+        return new File(filePath).exists();
+    }
+
     public static Pair<byte[], byte[]> GenerateKeyPair(String pkFilePath, String skFilePath)
             throws IOException, InterruptedException {
         Common.RunCommand(String.format("openssl genrsa -out %s 2048", skFilePath));
@@ -142,9 +161,8 @@ public class Common {
 
     public static byte[] GenerateSelfSignedCertificate(String skFilePath, String certFilePath, String issuerName)
             throws IOException, InterruptedException {
-        Common.RunCommand(
-                String.format("openssl req -x509 -new -nodes -key %s -sha256 -days 1825 -subj \"/CN=%s\" -out %s",
-                        skFilePath, issuerName, certFilePath));
+        Common.RunCommand(String.format("openssl req -x509 -new -nodes -key %s -sha256 -days 1825 -subj /CN=%s -out %s",
+                skFilePath, issuerName, certFilePath));
         byte[] certBytes = Common.ReadFromFile(certFilePath);
         return certBytes;
     }
@@ -162,7 +180,7 @@ public class Common {
         try {
             Common.WriteToFile(pkBytes, Common.TEMP_KEY_FILE);
             /* Generate dummy signing request. */
-            Common.RunCommand(String.format("openssl req -new -sha256 -key %s -subj \"/CN=%s\" -out %s",
+            Common.RunCommand(String.format("openssl req -new -sha256 -key %s -subj /CN=%s -out %s",
                     skCertificateAuthorityFilePath, pkOwnerName, Common.TEMP_CSR_FILE));
             /*
              * Generate certificate by forcing to use different public key than the one in
