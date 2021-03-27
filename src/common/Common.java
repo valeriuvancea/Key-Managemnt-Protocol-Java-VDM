@@ -227,4 +227,17 @@ public class Common {
             Common.RemoveFile(Common.TEMP_SIGN_FILE);
         }
     }
+
+    public static byte[] SignData(String skFilePath, byte[] data) throws IOException, InterruptedException {
+        try {
+            byte[] digest = Common.GetDataDigest(data);
+            Common.WriteToFile(digest, Common.TEMP_DATA_FILE);
+            Common.RunCommand(String.format("openssl rsautl -sign -out %s -inkey %s -keyform PEM -in %s",
+                    Common.TEMP_SIGN_FILE, skFilePath, Common.TEMP_DATA_FILE));
+            return Common.ReadFromFile(Common.TEMP_SIGN_FILE);
+        } finally {
+            Common.RemoveFile(Common.TEMP_DATA_FILE);
+            Common.RemoveFile(Common.TEMP_SIGN_FILE);
+        }
+    }
 }

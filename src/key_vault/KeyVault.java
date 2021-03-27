@@ -5,8 +5,14 @@ import java.io.IOException;
 import common.*;
 
 public class KeyVault {
-    public KeyVault() throws IOException, InterruptedException {
 
+    private static final String SK_KV_FILE_PATH = "store/sk_kv";
+    private static final String PK_KV_FILE_PATH = "store/pk_kv";
+
+    public KeyVault() throws IOException, InterruptedException {
+        byte[] data = "Hello".getBytes();
+        byte[] signature = Common.SignData(SK_KV_FILE_PATH, data);
+        System.out.println(Common.ByteArrayToString(signature));
     }
 
     private byte[] GenerateRandomByteArray(int numberOfBytes) throws IOException, InterruptedException {
