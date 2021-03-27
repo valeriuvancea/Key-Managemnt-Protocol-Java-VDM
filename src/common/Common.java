@@ -278,13 +278,26 @@ public class Common {
             } else {
                 return false;
             }
-
-            System.out.println(result);
-            return false;
         } finally {
             Common.RemoveFile(Common.TEMP_SIGN_FILE);
             Common.RemoveFile(Common.TEMP_DATA_FILE);
             Common.RemoveFile(Common.TEMP_KEY_FILE);
+        }
+    }
+
+    public static boolean IsCertificateValid(byte[] certToValidate, String certCAFilePath)
+            throws IOException, InterruptedException {
+        try {
+            Common.WriteToFile(certToValidate, Common.TEMP_CERT_FILE);
+            String result = Common
+                    .RunCommand(String.format("openssl verify -CAfile %s %s", certCAFilePath, Common.TEMP_CERT_FILE));
+            if (result.contains(String.format("%s: OK", Common.TEMP_CERT_FILE))) {
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            Common.RemoveFile(Common.TEMP_CERT_FILE);
         }
     }
 }
