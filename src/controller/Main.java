@@ -9,6 +9,7 @@ import common.Common;
 public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
+
         Controller controller = new Controller();
     }
 }

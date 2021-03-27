@@ -11,6 +11,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+
+import javax.smartcardio.CommandAPDU;
+
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
@@ -19,6 +22,7 @@ public class Common {
     public static final String TEMP_CSR_FILE = "temp/temp_csr";
     public static final String TEMP_CERT_FILE = "temp/temp_cert";
     public static final String TEMP_DATA_FILE = "temp/temp_data";
+    public static final String TEMP_SIGN_FILE = "temp/temp_sign";
 
     private static final BidiMap<String, Byte> HEX_MAP = new DualHashBidiMap() {
         {
@@ -205,5 +209,22 @@ public class Common {
             throws IOException, InterruptedException {
         return Common.GenerateCertificate(certCertificateAuthorityFilePath, skCertificateAuthorityFilePath, pkBytes,
                 pkOwnerName, 365);
+    }
+
+    public static byte[] GetDataDigest(byte[] data) throws IOException, InterruptedException {
+        try {
+            Common.WriteToFile(data, Common.TEMP_DATA_FILE);
+            Common.RunCommand(
+                    String.format("openssl dgst -out %s -sha256 %s", Common.TEMP_SIGN_FILE, Common.TEMP_DATA_FILE));
+            String outputText = new String(Common.ReadFromFile(Common.TEMP_SIGN_FILE));
+            outputText = outputText.replace(String.format("SHA256(%s)= ", Common.TEMP_DATA_FILE), "");
+            outputText = outputText.replace("\n", "");
+            outputText = outputText.replace("\r", "");
+            byte[] output = Common.StringToByteArray(outputText);
+            return output;
+        } finally {
+            Common.RemoveFile(Common.TEMP_DATA_FILE);
+            Common.RemoveFile(Common.TEMP_SIGN_FILE);
+        }
     }
 }
