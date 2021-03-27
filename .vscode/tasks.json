@@ -13,7 +13,7 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"mainClass": "key_vault.Main",
+			"mainClass": "controller.Main",
 			"isBackground": false,
 		},
 		{

@@ -229,7 +229,7 @@ public class Common {
         }
     }
 
-    public static byte[] SignData(String skFilePath, byte[] data) throws IOException, InterruptedException {
+    public static byte[] Sign(String skFilePath, byte[] data) throws IOException, InterruptedException {
         try {
             byte[] digest = Common.GetDataDigest(data);
             Common.WriteToFile(digest, Common.TEMP_DATA_FILE);

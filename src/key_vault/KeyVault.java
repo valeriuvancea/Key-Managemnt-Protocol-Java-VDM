@@ -15,11 +15,6 @@ public class KeyVault {
 
     public KeyVault() throws IOException, InterruptedException {
         this.certKeyVault = Common.ReadFromFile(KeyVault.CERT_KV_FILE_PATH);
-        byte[] data = "Hello world".getBytes();
-        byte[] cipher = Common.Encrypt(this.certKeyVault, data);
-        byte[] text = this.Decrypt(KeyVault.SK_KV_FILE_PATH, cipher);
-        String message = new String(text);
-        System.out.println(message);
     }
 
     private byte[] GenerateRandomByteArray(int numberOfBytes) throws IOException, InterruptedException {
