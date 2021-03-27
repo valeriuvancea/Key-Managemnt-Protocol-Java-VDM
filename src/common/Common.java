@@ -303,13 +303,15 @@ public class Common {
     }
 
     public static byte[] Encrypt(byte[] cert, byte[] data) throws IOException, InterruptedException {
+        /* Note, current implementation is limited in allowed data size */
         try {
             byte[] key = Common.ExtractKeyFromCertificate(cert);
             Common.WriteToFile(data, Common.TEMP_DATA_FILE);
             Common.WriteToFile(key, Common.TEMP_KEY_FILE);
 
-            Common.RunCommand(String.format("openssl rsautl -encrypt -inkey %s -pubin -in %s -out %s",
+            String output = Common.RunCommand(String.format("openssl rsautl -encrypt -inkey %s -pubin -in %s -out %s",
                     Common.TEMP_KEY_FILE, Common.TEMP_DATA_FILE, Common.TEMP_CIPHER_FILE));
+            System.out.println(output);
             return Common.ReadFromFile(Common.TEMP_CIPHER_FILE);
 
         } finally {

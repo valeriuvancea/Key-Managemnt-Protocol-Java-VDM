@@ -44,5 +44,4 @@ public class KeyVault {
             Common.RemoveFile(Common.TEMP_DATA_FILE, false);
         }
     }
-
 }

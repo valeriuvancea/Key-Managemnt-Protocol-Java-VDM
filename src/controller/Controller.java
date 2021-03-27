@@ -32,10 +32,6 @@ public class Controller {
         }
 
         this.certController = Common.ReadFromFile(Controller.CERT_CT_FILE_PATH);
-
-        byte[] data = Common.ReadFromFile(Controller.CERT_CT_FILE_PATH);
-        byte[] sign = this.SignTPM(Controller.SK_CT_FILE_PATH, data);
-        System.out.println(Common.IsSignatureValid(this.certController, data, sign));
     }
 
     private Pair<byte[], byte[]> GenerateKeyPairTPM(String pkFilePath, String skFilePath)
@@ -66,7 +62,7 @@ public class Controller {
         return this.GenerateRandomByteArrayTPM(128);
     }
 
-    public static byte[] SignTPM(String skFilePath, byte[] data) throws IOException, InterruptedException {
+    private byte[] SignTPM(String skFilePath, byte[] data) throws IOException, InterruptedException {
         try {
             byte[] digest = Common.GetDataDigest(data);
             Common.WriteToFile(digest, Common.TEMP_DATA_FILE);
@@ -78,6 +74,19 @@ public class Controller {
         } finally {
             Common.RemoveFile(Common.TEMP_DATA_FILE);
             Common.RemoveFile(Common.TEMP_SIGN_FILE);
+        }
+    }
+
+    private byte[] DecryptTPM(String skFilePath, byte[] cipher) throws IOException, InterruptedException {
+        try {
+            Common.WriteToFile(cipher, Common.TEMP_CIPHER_FILE);
+            Common.RunCommand(
+                    String.format("openssl pkeyutl -engine tpm2tss -keyform engine -inkey %s -in %s -decrypt -out %s",
+                            skFilePath, Common.TEMP_CIPHER_FILE, Common.TEMP_DATA_FILE));
+            return Common.ReadFromFile(Common.TEMP_DATA_FILE);
+        } finally {
+            Common.RemoveFile(Common.TEMP_CIPHER_FILE, false);
+            Common.RemoveFile(Common.TEMP_DATA_FILE, false);
         }
     }
 }
