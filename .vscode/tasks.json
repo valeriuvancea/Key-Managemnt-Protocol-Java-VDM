@@ -68,5 +68,20 @@
 				"clear": false
 			}
 		},
+		{
+			"label": "deploy_controller_1",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_1_store} pi@${config:controller_1_address}:${config:pi_deployment_folder}/${sotre_deployment_folder}",
+		},
+		{
+			"label": "deploy_controller_2",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_2_store} pi@${config:controller_2_address}:${config:pi_deployment_folder}/${sotre_deployment_folder}",
+		},
+		{
+			"label": "deploy_key_vault",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:key_vault_store} pi@${config:key_vault_address}:${config:pi_deployment_folder}/${sotre_deployment_folder}",
+		},
 	],
 }

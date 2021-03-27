@@ -7,4 +7,8 @@
     "pink_address": "192.168.1.253",
     "default_address": "192.168.1.99",
     "identity_file": "%USERPROFILE%\\.ssh\\pi_key",
+    "controller_1_store": "controller_1_store",
+    "controller_2_store": "controller_2_store",
+    "key_vault_store": "key_vault_store",
+    "sotre_deployment_folder": "store"
 }

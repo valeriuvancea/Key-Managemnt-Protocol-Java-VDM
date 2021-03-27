@@ -13,8 +13,7 @@ public class Pair<A, B> {
         return this.first;
     }
 
-    public B GetSecond()
-    {
-        return this.second:
+    public B GetSecond() {
+        return this.second;
     }
 }
