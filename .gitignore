@@ -1,5 +1,5 @@
 .metadata
 generated
 keyManagementProtocol.jar
-build/*
-*_store/*
+deployment_store/*
+target/*
