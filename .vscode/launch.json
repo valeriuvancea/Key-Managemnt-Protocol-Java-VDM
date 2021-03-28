@@ -8,38 +8,17 @@
             "type": "java",
             "name": "Launch Main",
             "request": "launch",
-            "mainClass": "controller.Main",
-            "projectName": "au_thesis_java_mockup_ef08020c"
+            "mainClass": "org.mockup.manufacturer.Main",
+            "projectName": "mockup"
         },
         {
+            "name": "remote_debug",
             "type": "java",
-            "name": "Launch Main",
-            "request": "launch",
-            "mainClass": "manufacturer.Main",
-            "projectName": "au_thesis_java_mockup_ef08020c"
-        },
-        {
-            "type": "java",
-            "name": "Launch VDM Main",
-            "request": "launch",
-            "mainClass": "org.overture.interpreter.VDMJ",
-            "args": "-vdmpp -i -remote vdm.RemoteController \"${workspaceFolder}/vdm/Controller/\""
-        },
-        {
-            "type": "java",
-            "name": "Launch Java Main",
-            "request": "launch",
-            "mainClass": "Main"
-        },
-        {
-            "type": "java",
-            "name": "pi",
-            "projectName": "",
             "request": "attach",
-            "hostName": "${config:default_address}",
+            "hostName": "${config:remote_debug_address}",
             "port": 8000,
-            "preLaunchTask": "start",
-            "postDebugTask": "stop"
+            "preLaunchTask": "remote_debug_start",
+            "postDebugTask": "remote_debug_stop_server"
         }
     ]
 }
