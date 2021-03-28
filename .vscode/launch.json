@@ -8,6 +8,13 @@
             "type": "java",
             "name": "Launch Main",
             "request": "launch",
+            "mainClass": "org.mockup.Main",
+            "projectName": "mockup"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
             "mainClass": "org.mockup.manufacturer.Main",
             "projectName": "mockup"
         },
