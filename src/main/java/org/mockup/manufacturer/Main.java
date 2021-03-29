@@ -1,6 +1,8 @@
 package org.mockup.manufacturer;
 
 import java.io.IOException;
+
+import org.javatuples.Pair;
 import org.mockup.common.*;
 
 public class Main {
@@ -35,7 +37,7 @@ public class Main {
                 Common.WriteToFile(certManufacturer, certManufacturerKeyVaultFilePath);
                 Common.GenerateKeyPair(pkCertificateAuthorityFilePath, skCertificateAuthorityFilePath);
                 byte[] certKeyVault = Common.GenerateCertificate(certManufacturerFilePath, skManufacturerFilePath,
-                                keyVaultKeys.GetFirst(), keyVaultIdString);
+                                keyVaultKeys.getValue0(), keyVaultIdString);
                 Common.WriteToFile(certKeyVault, certKeyVaultFilePath);
                 Common.GenerateSelfSignedCertificate(skCertificateAuthorityFilePath, certCertificateAuthorityFilePath,
                                 keyVaultIdString);
@@ -53,7 +55,7 @@ public class Main {
                 String skManufacturerController1FilePath = "deployment_store/controller_1/sk_m";
                 Common.WriteToFile(controller_1_id, idController1FilePath);
                 Common.WriteToFile(certManufacturer, certManufacturerController1FilePath);
-                Common.WriteToFile(manufacturerKeys.GetSecond(), skManufacturerController1FilePath);
+                Common.WriteToFile(manufacturerKeys.getValue1(), skManufacturerController1FilePath);
 
                 /* Generate controller 1 object */
                 String idController2FilePath = "deployment_store/controller_2/id";
@@ -61,6 +63,6 @@ public class Main {
                 String skManufacturerController2FilePath = "deployment_store/controller_2/sk_m";
                 Common.WriteToFile(controller_2_id, idController2FilePath);
                 Common.WriteToFile(certManufacturer, certManufacturerController2FilePath);
-                Common.WriteToFile(manufacturerKeys.GetSecond(), skManufacturerController2FilePath);
+                Common.WriteToFile(manufacturerKeys.getValue1(), skManufacturerController2FilePath);
         }
 }

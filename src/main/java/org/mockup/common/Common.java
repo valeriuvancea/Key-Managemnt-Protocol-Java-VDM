@@ -13,6 +13,8 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import javax.xml.bind.DatatypeConverter;
 
+import org.javatuples.Pair;
+
 public class Common {
     public static final String TEMP_KEY_FILE = "temp/temp_key";
     public static final String TEMP_CSR_FILE = "temp/temp_csr";
@@ -104,7 +106,7 @@ public class Common {
     }
 
     public static String ByteArrayToString(byte[] value) {
-        return DatatypeConverter.parseHexBinary(value.toUpperCase());
+        return DatatypeConverter.printHexBinary(value).toLowerCase();
     }
 
     public static byte[] StringToByteArray(String value) {

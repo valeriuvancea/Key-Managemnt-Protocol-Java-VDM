@@ -1,6 +1,8 @@
 package org.mockup.controller;
 
 import java.io.IOException;
+
+import org.javatuples.Pair;
 import org.mockup.common.*;
 
 public class Controller {
@@ -24,7 +26,7 @@ public class Controller {
             Pair<byte[], byte[]> controllerKeys = this.GenerateKeyPairTPM(Controller.PK_CT_FILE_PATH,
                     Controller.SK_CT_FILE_PATH);
             byte[] certController = Common.GenerateCertificate(Controller.CERT_M_FILE_PATH, Controller.SK_M_FILE_PATH,
-                    controllerKeys.GetFirst(), this.idString);
+                    controllerKeys.getValue0(), this.idString);
             Common.WriteToFile(certController, Controller.CERT_CT_FILE_PATH);
 
             Common.RemoveFile(Controller.SK_M_FILE_PATH);
