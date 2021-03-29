@@ -89,20 +89,24 @@ public class Common {
         RemoveFile(filePath, true);
     }
 
-    public static InetAddress GetIpAddress() throws SocketException {
+    public static String GetIpAddress() throws SocketException {
         String interfaceName = "eth0";
+        return Common.GetIpAddress(interfaceName);
+    }
+
+    public static String GetIpAddress(String interfaceName) throws SocketException {
         NetworkInterface networkInterface = NetworkInterface.getByName(interfaceName);
         Enumeration<InetAddress> inetAddress = networkInterface.getInetAddresses();
         InetAddress currentAddress;
-        currentAddress = inetAddress.nextElement();
+
         while (inetAddress.hasMoreElements()) {
             currentAddress = inetAddress.nextElement();
             if (currentAddress instanceof Inet4Address && !currentAddress.isLoopbackAddress()) {
-                return currentAddress;
+                return currentAddress.getHostAddress();
             }
         }
 
-        return null;
+        return "";
     }
 
     public static String ByteArrayToString(byte[] value) {
