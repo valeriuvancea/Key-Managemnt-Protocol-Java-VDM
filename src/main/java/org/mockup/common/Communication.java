@@ -9,7 +9,6 @@ import spark.Route;
 import spark.Spark;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -28,6 +27,10 @@ public class Communication implements Route {
         post("/message", "application/json", this);
     }
 
+    public void Stop() {
+        Spark.stop();
+    }
+
     @Override
     public Object handle(Request request, Response response) throws Exception {
         String contentsString = request.queryParams("contents");
@@ -36,8 +39,7 @@ public class Communication implements Route {
             String senderAddress = request.ip();
             JSONObject contents = new JSONObject(contentsString);
             this.callback.HandleMessage(senderAddress, contents);
-        } catch (JSONException ex) {
-
+        } catch (JSONException e) {
         }
 
         return "";
