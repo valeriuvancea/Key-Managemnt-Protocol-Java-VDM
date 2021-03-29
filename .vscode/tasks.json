@@ -2,18 +2,86 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "build",
 			"type": "java",
-			"label": "Build Java",
-			"targetPath": "${workspaceFolder}/vdm/Controller/lib/keyManagementProtocol.jar",
+			"targetPath": "${workspaceFolder}/build/${config:java_jar}",
 			"elements": [
 				"${compileOutput}",
 				"${dependencies}"
 			],
-			"problemMatcher": [],
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-		}
-	]
+			"mainClass": "controller.Main",
+			"isBackground": false,
+		},
+		{
+			"label": "upload",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:default_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "start",
+			"isBackground": true,
+			"type": "shell",
+			"command": "ssh pi@${config:default_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:default_address}:8000 -jar ${config:java_jar}\"",
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".",
+						"endsPattern": ".",
+					}
+				}
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": true
+			},
+			"dependsOn": [
+				"upload",
+			],
+		},
+		{
+			"label": "stop",
+			"type": "shell",
+			"command": "ssh pi@${config:default_address} -i ${config:identity_file} killall -9 java",
+			"presentation": {
+				"echo": true,
+				"reveal": "never",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "deploy_controller_1",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_1_store}/* pi@${config:controller_1_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}",
+		},
+		{
+			"label": "deploy_controller_2",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_2_store}/* pi@${config:controller_2_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}/",
+		},
+		{
+			"label": "deploy_key_vault",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:key_vault_store}/* pi@${config:key_vault_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}/",
+		},
+	],
 }

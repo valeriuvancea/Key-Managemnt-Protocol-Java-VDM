@@ -6,10 +6,47 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch Java Program",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "manufacturer.Main",
+            "projectName": "au_thesis_mockup_java_a77b0026"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "controller.Main",
+            "projectName": "au_thesis_java_mockup_ef08020c"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "manufacturer.Main",
+            "projectName": "au_thesis_java_mockup_ef08020c"
+        },
+        {
+            "type": "java",
+            "name": "Launch VDM Main",
             "request": "launch",
             "mainClass": "org.overture.interpreter.VDMJ",
             "args": "-vdmpp -i -remote vdm.RemoteController \"${workspaceFolder}/vdm/Controller/\""
+        },
+        {
+            "type": "java",
+            "name": "Launch Java Main",
+            "request": "launch",
+            "mainClass": "Main"
+        },
+        {
+            "type": "java",
+            "name": "pi",
+            "projectName": "",
+            "request": "attach",
+            "hostName": "${config:default_address}",
+            "port": 8000,
+            "preLaunchTask": "start",
+            "postDebugTask": "stop"
         }
     ]
 }
