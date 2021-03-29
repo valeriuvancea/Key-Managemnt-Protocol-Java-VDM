@@ -61,7 +61,6 @@ public class Communication implements Route {
 
         try {
             client.execute(request);
-        } catch (ClientProtocolException e) {
         } catch (IOException e) {
         } finally {
             try {
