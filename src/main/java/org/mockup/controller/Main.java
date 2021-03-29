@@ -1,10 +1,7 @@
-package controller;
+package org.mockup.controller;
 
 import java.io.IOException;
-
-import javax.smartcardio.CommandAPDU;
-
-import common.Common;
+import org.mockup.common.*;
 
 public class Main {
 

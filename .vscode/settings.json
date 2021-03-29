@@ -1,14 +1,16 @@
 {
-    "java_jar": "au_thesis_java_mockup.jar",
     "pi_deployment_folder": "/home/pi/au_thesis_java_poc",
     "key_vault_address": "192.168.1.99",
     "controller_1_address": "192.168.1.135",
     "controller_2_address": "192.168.1.113",
     "pink_address": "192.168.1.253",
-    "default_address": "192.168.1.135",
     "identity_file": "%USERPROFILE%\\.ssh\\pi_key",
-    "controller_1_store": "controller_1_store",
-    "controller_2_store": "controller_2_store",
-    "key_vault_store": "key_vault_store",
-    "store_deployment_folder": "store"
+    "controller_1_store": "deployment_store/controller_1",
+    "controller_2_store": "deployment_store/controller_2",
+    "key_vault_store": "deployment_store/key_vault",
+    "store_deployment_folder": "store",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "remote_debug_jar": "mockup-1.0-jar-with-dependencies.jar",
+    "remote_debug_address": "192.168.1.99",
+    "remote_debug_main": "org.mockup.key_vault.Main",
 }

@@ -1,4 +1,4 @@
-package common;
+package org.mockup.common;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,6 +12,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 import javax.xml.bind.DatatypeConverter;
+
+import org.javatuples.Pair;
 
 public class Common {
     public static final String TEMP_KEY_FILE = "temp/temp_key";
@@ -87,20 +89,24 @@ public class Common {
         RemoveFile(filePath, true);
     }
 
-    public static InetAddress GetIpAddress() throws SocketException {
+    public static String GetIpAddress() throws SocketException {
         String interfaceName = "eth0";
+        return Common.GetIpAddress(interfaceName);
+    }
+
+    public static String GetIpAddress(String interfaceName) throws SocketException {
         NetworkInterface networkInterface = NetworkInterface.getByName(interfaceName);
         Enumeration<InetAddress> inetAddress = networkInterface.getInetAddresses();
         InetAddress currentAddress;
-        currentAddress = inetAddress.nextElement();
+
         while (inetAddress.hasMoreElements()) {
             currentAddress = inetAddress.nextElement();
             if (currentAddress instanceof Inet4Address && !currentAddress.isLoopbackAddress()) {
-                return currentAddress;
+                return currentAddress.getHostAddress();
             }
         }
 
-        return null;
+        return "";
     }
 
     public static String ByteArrayToString(byte[] value) {

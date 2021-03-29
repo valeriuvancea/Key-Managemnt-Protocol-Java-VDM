@@ -1,7 +1,9 @@
-package manufacturer;
+package org.mockup.manufacturer;
 
 import java.io.IOException;
-import common.*;
+
+import org.javatuples.Pair;
+import org.mockup.common.*;
 
 public class Main {
         public static void main(String[] args) throws IOException, InterruptedException {
@@ -10,9 +12,9 @@ public class Main {
                 byte[] controller_1_id = "controller_1".getBytes();
                 byte[] controller_2_id = "controller_2".getBytes();
 
-                String pkManufacturerFilePath = "manufacturer_store/pk_m";
-                String skManufacturerFilePath = "manufacturer_store/sk_m";
-                String certManufacturerFilePath = "manufacturer_store/cert_m";
+                String pkManufacturerFilePath = "deployment_store/manufacturer/pk_m";
+                String skManufacturerFilePath = "deployment_store/manufacturer/sk_m";
+                String certManufacturerFilePath = "deployment_store/manufacturer/cert_m";
                 /* Generate manufacturer objects */
                 Pair<byte[], byte[]> manufacturerKeys = Common.GenerateKeyPair(pkManufacturerFilePath,
                                 skManufacturerFilePath);
@@ -20,13 +22,13 @@ public class Main {
                                 certManufacturerFilePath, manufacturerNameString);
 
                 /* Generate key vault objects */
-                String skKeyVaultFilePath = "key_vault_store/sk_kv";
-                String pkKeyVaultFilePath = "key_vault_store/pk_kv";
-                String skCertificateAuthorityFilePath = "key_vault_store/sk_ca";
-                String pkCertificateAuthorityFilePath = "key_vault_store/pk_ca";
-                String certCertificateAuthorityFilePath = "key_vault_store/cert_ca";
-                String certKeyVaultFilePath = "key_vault_store/cert_kv";
-                String certManufacturerKeyVaultFilePath = "key_vault_store/cert_m";
+                String skKeyVaultFilePath = "deployment_store/key_vault/sk_kv";
+                String pkKeyVaultFilePath = "deployment_store/key_vault/pk_kv";
+                String skCertificateAuthorityFilePath = "deployment_store/key_vault/sk_ca";
+                String pkCertificateAuthorityFilePath = "deployment_store/key_vault/pk_ca";
+                String certCertificateAuthorityFilePath = "deployment_store/key_vault/cert_ca";
+                String certKeyVaultFilePath = "deployment_store/key_vault/cert_kv";
+                String certManufacturerKeyVaultFilePath = "deployment_store/key_vault/cert_m";
 
                 byte[] keyVaultId = "key_vault".getBytes();
                 String keyVaultIdString = Common.ByteArrayToString(keyVaultId);
@@ -35,7 +37,7 @@ public class Main {
                 Common.WriteToFile(certManufacturer, certManufacturerKeyVaultFilePath);
                 Common.GenerateKeyPair(pkCertificateAuthorityFilePath, skCertificateAuthorityFilePath);
                 byte[] certKeyVault = Common.GenerateCertificate(certManufacturerFilePath, skManufacturerFilePath,
-                                keyVaultKeys.GetFirst(), keyVaultIdString);
+                                keyVaultKeys.getValue0(), keyVaultIdString);
                 Common.WriteToFile(certKeyVault, certKeyVaultFilePath);
                 Common.GenerateSelfSignedCertificate(skCertificateAuthorityFilePath, certCertificateAuthorityFilePath,
                                 keyVaultIdString);
@@ -48,19 +50,19 @@ public class Main {
                  */
 
                 /* Generate controller 1 object */
-                String idController1FilePath = "controller_1_store/id";
-                String certManufacturerController1FilePath = "controller_1_store/cert_m";
-                String skManufacturerController1FilePath = "controller_1_store/sk_m";
+                String idController1FilePath = "deployment_store/controller_1/id";
+                String certManufacturerController1FilePath = "deployment_store/controller_1/cert_m";
+                String skManufacturerController1FilePath = "deployment_store/controller_1/sk_m";
                 Common.WriteToFile(controller_1_id, idController1FilePath);
                 Common.WriteToFile(certManufacturer, certManufacturerController1FilePath);
-                Common.WriteToFile(manufacturerKeys.GetSecond(), skManufacturerController1FilePath);
+                Common.WriteToFile(manufacturerKeys.getValue1(), skManufacturerController1FilePath);
 
                 /* Generate controller 1 object */
-                String idController2FilePath = "controller_2_store/id";
-                String certManufacturerController2FilePath = "controller_2_store/cert_m";
-                String skManufacturerController2FilePath = "controller_2_store/sk_m";
+                String idController2FilePath = "deployment_store/controller_2/id";
+                String certManufacturerController2FilePath = "deployment_store/controller_2/cert_m";
+                String skManufacturerController2FilePath = "deployment_store/controller_2/sk_m";
                 Common.WriteToFile(controller_2_id, idController2FilePath);
                 Common.WriteToFile(certManufacturer, certManufacturerController2FilePath);
-                Common.WriteToFile(manufacturerKeys.GetSecond(), skManufacturerController2FilePath);
+                Common.WriteToFile(manufacturerKeys.getValue1(), skManufacturerController2FilePath);
         }
 }

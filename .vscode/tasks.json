@@ -2,30 +2,20 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build",
-			"type": "java",
-			"targetPath": "${workspaceFolder}/build/${config:java_jar}",
-			"elements": [
-				"${compileOutput}",
-				"${dependencies}"
-			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"mainClass": "controller.Main",
-			"isBackground": false,
-		},
-		{
-			"label": "upload",
+			"label": "remote_debug_build",
 			"type": "shell",
-			"command": "scp -i ${config:identity_file} ${workspaceFolder}/build/${config:java_jar} pi@${config:default_address}:${config:pi_deployment_folder}",
+			"command": "mvn package"
 		},
 		{
-			"label": "start",
+			"label": "remote_debug_upload",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/target/${config:remote_debug_jar} pi@${config:remote_debug_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "remote_debug_start_server",
 			"isBackground": true,
 			"type": "shell",
-			"command": "ssh pi@${config:default_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:default_address}:8000 -jar ${config:java_jar}\"",
+			"command": "ssh pi@${config:remote_debug_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:remote_debug_address}:8000 -cp ${config:remote_debug_jar} ${config:remote_debug_main}\"",
 			"problemMatcher": [
 				{
 					"pattern": [
@@ -56,9 +46,9 @@
 			],
 		},
 		{
-			"label": "stop",
+			"label": "remote_debug_stop_server",
 			"type": "shell",
-			"command": "ssh pi@${config:default_address} -i ${config:identity_file} killall -9 java",
+			"command": "ssh pi@${config:remote_debug_address} -i ${config:identity_file} killall -9 java",
 			"presentation": {
 				"echo": true,
 				"reveal": "never",
@@ -82,6 +72,15 @@
 			"label": "deploy_key_vault",
 			"type": "shell",
 			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:key_vault_store}/* pi@${config:key_vault_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}/",
+		},
+		{
+			"label": "remote_debug_start",
+			"dependsOn": [
+				"remote_debug_build",
+				"remote_debug_upload",
+				"remote_debug_start_server"
+			],
+			"dependsOrder": "sequence"
 		},
 	],
 }
