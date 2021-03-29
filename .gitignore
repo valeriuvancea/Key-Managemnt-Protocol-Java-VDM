@@ -3,3 +3,4 @@ generated
 keyManagementProtocol.jar
 build/*
 *_store/*
+target/*

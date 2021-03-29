@@ -8,6 +8,13 @@
             "type": "java",
             "name": "Launch Main",
             "request": "launch",
+            "mainClass": "manufacturer.Main",
+            "projectName": "au_thesis_mockup_java_a77b0026"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
             "mainClass": "controller.Main",
             "projectName": "au_thesis_java_mockup_ef08020c"
         },

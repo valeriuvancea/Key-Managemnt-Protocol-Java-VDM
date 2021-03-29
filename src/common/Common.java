@@ -11,11 +11,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-
-import javax.smartcardio.CommandAPDU;
-
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import javax.xml.bind.DatatypeConverter;
 
 public class Common {
     public static final String TEMP_KEY_FILE = "temp/temp_key";
@@ -24,27 +20,6 @@ public class Common {
     public static final String TEMP_DATA_FILE = "temp/temp_data";
     public static final String TEMP_SIGN_FILE = "temp/temp_sign";
     public static final String TEMP_CIPHER_FILE = "temp/temp_cipher";
-
-    private static final BidiMap<String, Byte> HEX_MAP = new DualHashBidiMap() {
-        {
-            put("0", (byte) 0x0);
-            put("1", (byte) 0x1);
-            put("2", (byte) 0x2);
-            put("3", (byte) 0x3);
-            put("4", (byte) 0x4);
-            put("5", (byte) 0x5);
-            put("6", (byte) 0x6);
-            put("7", (byte) 0x7);
-            put("8", (byte) 0x8);
-            put("9", (byte) 0x9);
-            put("a", (byte) 0xA);
-            put("b", (byte) 0xB);
-            put("c", (byte) 0xC);
-            put("d", (byte) 0xD);
-            put("e", (byte) 0xE);
-            put("f", (byte) 0xF);
-        }
-    };
 
     public static String RunCommand(String command) throws IOException, InterruptedException {
         String[] commands = command.split("\\s+");
@@ -129,27 +104,11 @@ public class Common {
     }
 
     public static String ByteArrayToString(byte[] value) {
-        char[] output = new char[value.length * 2];
-        for (int i = 0; i < value.length; i++) {
-            output[i * 2] = HEX_MAP.getKey((byte) (value[i] >> 4 & 0x0F)).charAt(0);
-            output[i * 2 + 1] = HEX_MAP.getKey((byte) (value[i] & 0x0F)).charAt(0);
-        }
-
-        return new String(output);
+        return DatatypeConverter.printHexBinary(value).toLowerCase();
     }
 
     public static byte[] StringToByteArray(String value) {
-        byte[] output = new byte[value.length() / 2];
-        for (int i = 0; i < value.length() / 2; i++) {
-            String first = Character.toString(value.charAt(i * 2));
-            String second = Character.toString(value.charAt((i * 2) + 1));
-
-            byte result = (byte) (HEX_MAP.get(first) << 4);
-            result = (byte) (result | HEX_MAP.get(second));
-            output[i] = result;
-        }
-
-        return output;
+        return DatatypeConverter.parseHexBinary(value.toUpperCase());
     }
 
     public static boolean FileExists(String filePath) {
