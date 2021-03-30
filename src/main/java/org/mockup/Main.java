@@ -3,29 +3,24 @@ package org.mockup;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import org.json.JSONObject;
 import org.mockup.common.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * For trying things out.
  */
 public class Main {
-    public static void main(String[] args) throws InterruptedException, SocketException {
-        Communication communication = new Communication("192.168.1.136", new ICommunicationCallback() {
-            @Override
-            public void HandleMessage(String senderIpAddress, JSONObject contents) {
-                System.out.println(contents.toString());
-            };
-        });
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-        communication.Start();
-
+    public static void main(String[] args) throws InterruptedException, SocketException, UnknownHostException {
         while (true) {
             Thread.sleep(3000);
-            System.out.println("Sending");
-            communication.SendMessage("192.168.1.99", new JSONObject().append("type", "dummy"));
+            KeyVaultDiscovery.BroadcastDiscoveryRequest("DUMMY");
         }
     }
 }
