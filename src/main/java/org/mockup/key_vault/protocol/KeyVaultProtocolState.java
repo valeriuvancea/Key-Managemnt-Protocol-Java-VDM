@@ -6,7 +6,6 @@ import org.mockup.common.protocol.ProtocolState;
 public abstract class KeyVaultProtocolState extends ProtocolState {
     public KeyVaultProtocolState(int timeoutS, MessageType... expectedTypes) {
         super(timeoutS, expectedTypes);
-        // TODO Auto-generated constructor stub
     }
 
     public KeyVaultProtocolContext GetContext() {

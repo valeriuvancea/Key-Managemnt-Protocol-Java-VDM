@@ -46,7 +46,11 @@ public class ProtocolContext implements IReceiverCallback {
         }
 
         this.StopCurrentState();
-        this.terminatedCallback.HandleContextTerminated();
+    }
+
+    public void Terminate() {
+        this.Stop();
+        this.terminatedCallback.HandleContextTerminated(this.associatedIdString);
     }
 
     public void GoToNext(ProtocolState state) {

@@ -10,7 +10,8 @@
     "key_vault_store": "deployment_store/key_vault",
     "store_deployment_folder": "store",
     "java.configuration.updateBuildConfiguration": "automatic",
+    "controller_main": "org.mockup.controller.Main",
     "remote_debug_jar": "mockup-1.0-jar-with-dependencies.jar",
-    "remote_debug_address": "192.168.1.135",
-    "remote_debug_main": "org.mockup.controller.Main",
+    "remote_debug_address": "192.168.1.99",
+    "remote_debug_main": "org.mockup.key_vault.Main",
 }

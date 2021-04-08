@@ -68,14 +68,9 @@ public class Discovery implements Runnable {
                     String contentsString = new String(packet.getData(), 0, packet.getLength());
                     JSONObject contents = new JSONObject(contentsString);
 
-                    /* Check if the message has a type field. */
-                    if (!contents.has(MessageField.TYPE.Value())) {
-                        continue;
-                    }
-
                     /* Check if the message type is correct. */
-                    String receivedType = contents.getString(MessageField.TYPE.Value());
-                    if (receivedType.compareTo(this.discoveryMessageType.toString()) != 0) {
+                    MessageType receivedType = MessageType.ByValue(contents.optString(MessageField.TYPE.Value()));
+                    if (receivedType != this.discoveryMessageType) {
                         continue;
                     }
 
@@ -102,7 +97,7 @@ public class Discovery implements Runnable {
 
     protected static void Broadcast(MessageType messageType, String controllerId) {
         JSONObject message = new JSONObject();
-        message.put(MessageField.TYPE.Value(), messageType.toString());
+        message.put(MessageField.TYPE.Value(), messageType.Value());
         message.put(MessageField.CONTROLLER_ID.Value(), controllerId);
 
         DatagramSocket socket = null;

@@ -7,7 +7,6 @@ public abstract class ControllerProtocolState extends ProtocolState {
 
     public ControllerProtocolState(int timeoutS, MessageType... expectedTypes) {
         super(timeoutS, expectedTypes);
-        // TODO Auto-generated constructor stub
     }
 
     public ControllerProtocolContext GetContext() {

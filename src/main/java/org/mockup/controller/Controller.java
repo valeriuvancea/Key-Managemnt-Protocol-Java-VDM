@@ -7,7 +7,7 @@ import org.mockup.controller.protocol.ControllerProtocolContext;
 import org.mockup.controller.protocol.FindKeyVaultState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.mockup.common.*;
+import org.mockup.common.Common;
 import org.mockup.common.communication.Sender;
 import org.mockup.common.communication.Receiver;
 
@@ -38,7 +38,7 @@ public class Controller implements IContextTerminatedCallback {
     }
 
     @Override
-    public void HandleContextTerminated() {
+    public void HandleContextTerminated(String associatedControllerIdString) {
         this.logger.info("Protocol has terminated. Restarting.");
     }
 }

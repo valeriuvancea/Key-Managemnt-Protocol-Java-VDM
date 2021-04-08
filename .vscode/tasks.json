@@ -2,7 +2,7 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "remote_debug_build",
+			"label": "build",
 			"type": "shell",
 			"command": "mvn package"
 		},
@@ -41,9 +41,6 @@
 				"showReuseMessage": true,
 				"clear": true
 			},
-			"dependsOn": [
-				"upload",
-			],
 		},
 		{
 			"label": "remote_debug_stop_server",
@@ -59,28 +56,97 @@
 			}
 		},
 		{
-			"label": "deploy_controller_1",
-			"type": "shell",
-			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_1_store}/* pi@${config:controller_1_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}",
-		},
-		{
-			"label": "deploy_controller_2",
-			"type": "shell",
-			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_2_store}/* pi@${config:controller_2_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}/",
-		},
-		{
-			"label": "deploy_key_vault",
-			"type": "shell",
-			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:key_vault_store}/* pi@${config:key_vault_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}/",
-		},
-		{
 			"label": "remote_debug_start",
 			"dependsOn": [
-				"remote_debug_build",
+				"build",
 				"remote_debug_upload",
 				"remote_debug_start_server"
 			],
 			"dependsOrder": "sequence"
+		},
+		{
+			"label": "deploy_controller_1",
+			"dependsOn": [
+				"deploy_controller_1_store",
+				"deploy_controller_1_jar",
+			],
+			"dependsOrder": "sequence"
+		},
+		{
+			"label": "deploy_controller_1_store",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_1_store}/* pi@${config:controller_1_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}",
+		},
+		{
+			"label": "deploy_controller_1_jar",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/target/${config:remote_debug_jar} pi@${config:controller_1_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "deploy_controller_2",
+			"dependsOn": [
+				"deploy_controller_2_store",
+				"deploy_controller_2_jar",
+			],
+			"dependsOrder": "sequence"
+		},
+		{
+			"label": "deploy_controller_2_store",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:controller_2_store}/* pi@${config:controller_2_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}",
+		},
+		{
+			"label": "deploy_controller_2_jar",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/target/${config:remote_debug_jar} pi@${config:controller_2_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "deploy_key_vault",
+			"dependsOn": [
+				"deploy_key_vault_store",
+				"deploy_key_vault_jar",
+			],
+			"dependsOrder": "sequence"
+		},
+		{
+			"label": "deploy_key_vault_store",
+			"type": "shell",
+			"command": "scp -r -i ${config:identity_file} ${workspaceFolder}/${config:key_vault_store}/* pi@${config:key_vault_address}:${config:pi_deployment_folder}/${config:store_deployment_folder}",
+		},
+		{
+			"label": "deploy_key_vault_jar",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/target/${config:remote_debug_jar} pi@${config:key_vault_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "start_controller_2",
+			"type": "shell",
+			"command": "ssh pi@${config:controller_2_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -cp ${config:remote_debug_jar} ${config:controller_main}\"",
+		},
+		{
+			"label": "stop_controller_2",
+			"type": "shell",
+			"command": "ssh pi@${config:controller_2_address} -i ${config:identity_file} killall -9 java",
+		},
+		{
+			"label": "start_controller_1",
+			"type": "shell",
+			"command": "ssh pi@${config:controller_1_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -cp ${config:remote_debug_jar} ${config:controller_main}\"",
+		},
+		{
+			"label": "stop_controller_1",
+			"type": "shell",
+			"command": "ssh pi@${config:controller_1_address} -i ${config:identity_file} killall -9 java",
+		},
+		{
+			"label": "start_key_vault",
+			"type": "shell",
+			"command": "ssh pi@${config:key_vault_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -cp ${config:remote_debug_jar} ${config:controller_main}\"",
+		},
+		{
+			"label": "stop_key_vault",
+			"type": "shell",
+			"command": "ssh pi@${config:key_vault_address} -i ${config:identity_file} killall -9 java",
 		},
 	],
 }

@@ -1,7 +1,7 @@
 package org.mockup.controller.protocol;
 
 import org.json.JSONObject;
-import org.mockup.common.discovery.ControllerDiscovery;
+import org.mockup.common.discovery.KeyVaultDiscovery;
 import org.mockup.common.protocol.MessageType;
 
 public class FindKeyVaultState extends ControllerProtocolState {
@@ -15,7 +15,7 @@ public class FindKeyVaultState extends ControllerProtocolState {
 
     @Override
     public void OnStart() {
-        ControllerDiscovery.BroadcastDiscoveryRequest(this.GetContext().GetAssociatedIdString());
+        KeyVaultDiscovery.BroadcastDiscoveryRequest(this.GetContext().GetAssociatedIdString());
     }
 
     @Override
