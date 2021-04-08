@@ -2,19 +2,24 @@ package org.mockup.common.protocol;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
 import org.mockup.common.communication.IReceiverCallback;
 import org.mockup.common.communication.Sender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ProtocolContext extends TimerTask implements IReceiverCallback {
+public class ProtocolContext implements IReceiverCallback {
+    private final Logger logger = LoggerFactory.getLogger(ProtocolContext.class);
     private final Timer timeoutTimer;
     private final IContextTerminatedCallback terminatedCallback;
     private final String associatedIdString;
     private final Sender sender;
 
     private ProtocolState currentState;
+    private TimeoutTask timeoutTask;
 
     public ProtocolContext(String associatedIdString, Sender sender, IContextTerminatedCallback terminatedCallback) {
         this.currentState = null;
@@ -24,22 +29,34 @@ public class ProtocolContext extends TimerTask implements IReceiverCallback {
         this.sender = sender;
     }
 
-    public void Start(ProtocolState state) {
-        this.StopCurrentState();
-
-        this.currentState = state;
-        this.currentState.SetContext(this);
-        this.currentState.OnStart();
-
-        long timeoutS = this.currentState.GetTimeoutS();
-        if (timeoutS > 0) {
-            this.timeoutTimer.schedule(this, timeoutS * 1000);
+    public void StartContext(ProtocolState startState) {
+        if (currentState != null) {
+            return;
         }
+
+        this.StartNewState(startState);
     }
 
-    public void Stop() {
+    public void StopContext() {
+        if (currentState == null) {
+            return;
+        }
+
         this.StopCurrentState();
         this.terminatedCallback.HandleContextTerminated();
+    }
+
+    public void GoToNext(ProtocolState state) {
+        if (currentState == null) {
+            return;
+        }
+
+        this.StopCurrentState();
+        this.StartNewState(state);
+    }
+
+    public String GetAssociatedIdString() {
+        return this.associatedIdString;
     }
 
     @Override
@@ -74,31 +91,57 @@ public class ProtocolContext extends TimerTask implements IReceiverCallback {
         }
     }
 
-    @Override
-    public void run() {
-        ProtocolState timedOutState = this.currentState;
-
-        synchronized (this) {
-            if (this.currentState != timedOutState) {
-                return;
-            }
-
-            this.currentState.OnTimeout();
-        }
+    private void StopCurrentState() {
+        logger.debug("{} associated state {} stopped.", this.associatedIdString,
+                this.currentState.getClass().getName());
+        this.timeoutTask.cancel();
+        this.currentState = null;
     }
 
-    private void StopCurrentState() {
-        if (this.currentState == null) {
-            return;
+    private void StartNewState(ProtocolState state) {
+        this.currentState = state;
+        logger.debug("{} associated state {} starting.", this.associatedIdString,
+                this.currentState.getClass().getName());
+        this.currentState.SetContext(this);
+        this.currentState.OnStart();
+        long timeoutS = this.currentState.GetTimeoutS();
+        if (timeoutS > 0) {
+            this.timeoutTask = new TimeoutTask();
+            this.timeoutTimer.schedule(this.timeoutTask, timeoutS * 1000);
         }
-
-        this.currentState = null;
-        this.timeoutTimer.cancel();
     }
 
     private void SendMessage(String ipAddress, MessageType messageType, JSONObject message) {
         message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
         message.put(MessageField.TYPE.Value(), messageType.Value());
         this.sender.SendMessage(ipAddress, message);
+    }
+
+    private class TimeoutTask extends TimerTask {
+        private final AtomicBoolean cancelledFlag;
+
+        public TimeoutTask() {
+            this.cancelledFlag = new AtomicBoolean();
+        }
+
+        @Override
+        public boolean cancel() {
+            this.cancelledFlag.set(true);
+            return super.cancel();
+        }
+
+        @Override
+        public void run() {
+            synchronized (ProtocolContext.this) {
+                if (this.cancelledFlag.get()) {
+                    return;
+                }
+
+                logger.debug("{} associated state {} has timed out.", ProtocolContext.this.associatedIdString,
+                        ProtocolContext.this.currentState.getClass().getName());
+
+                ProtocolContext.this.currentState.OnTimeout();
+            }
+        }
     }
 }

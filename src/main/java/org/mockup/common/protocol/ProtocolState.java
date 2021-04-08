@@ -30,19 +30,7 @@ public abstract class ProtocolState {
 
     public abstract void OnTimeout();
 
-    protected void Terminate() {
-        if (this.context == null) {
-            return;
-        }
-
-        this.context.Stop();
-    }
-
-    protected void GoToNext(ProtocolState nextState) {
-        if (this.context == null) {
-            return;
-        }
-
-        this.context.Start(nextState);
+    protected ProtocolContext GetContext() {
+        return this.context;
     }
 }

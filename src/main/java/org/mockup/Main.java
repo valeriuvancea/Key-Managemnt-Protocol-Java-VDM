@@ -5,9 +5,13 @@ import java.net.UnknownHostException;
 
 import org.json.JSONObject;
 import org.mockup.common.*;
+import org.mockup.common.communication.Sender;
+import org.mockup.common.protocol.MessageField;
+import org.mockup.common.protocol.MessageType;
+import org.mockup.controller.protocol.ControllerProtocolContext;
+import org.mockup.controller.protocol.FindKeyVaultState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.mockup.common.state.*;
 
 /**
  * For trying things out.
@@ -16,34 +20,19 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws InterruptedException, SocketException, UnknownHostException {
-        ProtocolState state = new ProtocolState(MessageType.KEY_VAULT_DISCOVERY_REPLY) {
-            @Override
-            public void OnMessageReceived(JSONObject message) {
-                // TODO Auto-generated method stub
+        FindKeyVaultState startState = new FindKeyVaultState();
+        Sender sender = new Sender();
+        ControllerProtocolContext context = new ControllerProtocolContext("dummy", sender, null);
 
-            }
-
-            @Override
-            public void OnStart() {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void OnTimeout() {
-                // TODO Auto-generated method stub
-
-            }
-        };
-
-        ProtocolContext context = new ProtocolContext();
-        context.Start(state);
-        Communication communication = new Communication("192.168.1.136", context);
-        communication.Start();
+        context.StartContext(startState);
+        JSONObject message = new JSONObject();
+        message.put(MessageField.CONTROLLER_ID.Value(), "dummy");
+        message.put(MessageField.TYPE.Value(), MessageType.KEY_VAULT_DISCOVERY_REPLY.Value());
+        context.HandleMessage("", message);
 
         while (true) {
             Thread.sleep(3000);
-            logger.info("Running");
+            logger.info("Sketchbook running");
         }
     }
 }
