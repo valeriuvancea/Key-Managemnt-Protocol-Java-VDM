@@ -1,4 +1,4 @@
-package org.mockup.common;
+package org.mockup.common.discovery;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.mockup.common.protocol.MessageType;
+import org.mockup.common.protocol.MessageField;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,15 +68,18 @@ public class Discovery implements Runnable {
                     String contentsString = new String(packet.getData(), 0, packet.getLength());
                     JSONObject contents = new JSONObject(contentsString);
 
+                    /* Check if the message has a type field. */
                     if (!contents.has(MessageField.TYPE.Value())) {
                         continue;
                     }
 
+                    /* Check if the message type is correct. */
                     String receivedType = contents.getString(MessageField.TYPE.Value());
                     if (receivedType.compareTo(this.discoveryMessageType.toString()) != 0) {
                         continue;
                     }
 
+                    /* Check if the message carries controller id. */
                     if (!contents.has(MessageField.CONTROLLER_ID.Value())) {
                         continue;
                     }

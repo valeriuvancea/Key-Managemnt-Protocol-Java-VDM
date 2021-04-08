@@ -5,8 +5,6 @@ import java.util.TimerTask;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
-import org.mockup.common.MessageField;
-import org.mockup.common.MessageType;
 import org.mockup.common.communication.IReceiverCallback;
 import org.mockup.common.communication.Sender;
 

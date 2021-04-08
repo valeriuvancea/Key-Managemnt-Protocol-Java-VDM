@@ -1,7 +1,6 @@
 package org.mockup.common.protocol;
 
 import org.json.JSONObject;
-import org.mockup.common.MessageType;
 
 public abstract class ProtocolState {
     private final int timeoutS;

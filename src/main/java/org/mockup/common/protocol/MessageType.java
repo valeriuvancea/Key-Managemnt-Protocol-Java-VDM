@@ -1,4 +1,4 @@
-package org.mockup.common;
+package org.mockup.common.protocol;
 
 import java.util.HashMap;
 import java.util.Map;
