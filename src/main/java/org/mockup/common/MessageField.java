@@ -1,9 +1,20 @@
 package org.mockup.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum MessageField {
     TYPE("type"), CONTROLLER_ID("controller_id"), CERT_CT("cert_ct"), CERT_KV("cert_kv"),
     ENCRYPTED_CHALLENGE("encrypted_challenge"), DECRYPTED_CHALLENGE("decrypted_challenge"), PK_EFF("pk_eff"),
     HASH("hash"), CERT_EFF("cert_eff"), CERT_CA("cert_ca"), SENDER_ID("sender_id"), ENCRYPTED_DATA("encrypted_data");
+
+    private static final Map<String, MessageField> BY_VALUE = new HashMap<String, MessageField>();
+
+    static {
+        for (MessageField e : values()) {
+            BY_VALUE.put(e.Value(), e);
+        }
+    }
 
     private final String text;
 
@@ -11,12 +22,15 @@ public enum MessageField {
         this.text = text;
     }
 
-    @Override
-    public String toString() {
+    public String Value() {
         return this.text;
     }
 
-    public MessageField[] GetExpected(MessageType messageType) {
+    public static MessageField ByValue(String value) {
+        return BY_VALUE.get(value);
+    }
+
+    public static MessageField[] GetExpected(MessageType messageType) {
         switch (messageType) {
         case CONTROLLER_CERTIFICATE_UPDATE: {
             return new MessageField[] { TYPE, CONTROLLER_ID, SENDER_ID, CERT_EFF };
@@ -63,7 +77,6 @@ public enum MessageField {
         default: {
             return new MessageField[] { TYPE, CONTROLLER_ID };
         }
-
         }
     }
 }

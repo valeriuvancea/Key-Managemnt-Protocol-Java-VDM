@@ -6,7 +6,7 @@ import org.mockup.common.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KeyVault implements ICommunicationCallback, IDiscoveryCallback {
+public class KeyVault {
     private static final String SK_KV_FILE_PATH = "store/sk_kv";
     private static final String PK_KV_FILE_PATH = "store/pk_kv";
     private static final String CERT_KV_FILE_PATH = "store/cert_kv";
@@ -24,6 +24,13 @@ public class KeyVault implements ICommunicationCallback, IDiscoveryCallback {
         this.discovery = new KeyVaultDiscovery(this);
     }
 
+    public void Kick() {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.TYPE.Value(), MessageType.KEY_VAULT_DISCOVERY_REQUEST.Value());
+        contents.put(MessageField.CONTROLLER_ID.Value(), "dummy");
+        this.communication.SendMessage("192.168.1.136", contents);
+    }
+
     public void Start() {
         this.communication.Start();
         this.discovery.Start();
@@ -32,43 +39,5 @@ public class KeyVault implements ICommunicationCallback, IDiscoveryCallback {
     public void Stop() {
         this.communication.Stop();
         this.discovery.Stop();
-    }
-
-    private byte[] GenerateRandomByteArray(int numberOfBytes) throws IOException, InterruptedException {
-        try {
-            Common.RunCommand(String.format("openssl rand -out %s -hex %s", Common.TEMP_DATA_FILE, numberOfBytes));
-            String output = new String(Common.ReadFromFile(Common.TEMP_DATA_FILE));
-            byte[] bytes = Common.StringToByteArray(output);
-            return bytes;
-        } finally {
-            Common.RemoveFile(Common.TEMP_DATA_FILE, false);
-        }
-    }
-
-    private byte[] GenerateRandomByteArray() throws IOException, InterruptedException {
-        return this.GenerateRandomByteArray(128);
-    }
-
-    private byte[] Decrypt(String skFilePath, byte[] cipher) throws IOException, InterruptedException {
-        try {
-            Common.WriteToFile(cipher, Common.TEMP_CIPHER_FILE);
-            Common.RunCommand(String.format("openssl rsautl -decrypt -inkey %s -in %s -out %s", skFilePath,
-                    Common.TEMP_CIPHER_FILE, Common.TEMP_DATA_FILE));
-            return Common.ReadFromFile(Common.TEMP_DATA_FILE);
-        } finally {
-            Common.RemoveFile(Common.TEMP_CIPHER_FILE, false);
-            Common.RemoveFile(Common.TEMP_DATA_FILE, false);
-        }
-    }
-
-    @Override
-    public void HandleMessage(String senderIpAddress, JSONObject contents) {
-        System.out.println(String.format("Key vault received message from %s with contents of %s", senderIpAddress,
-                contents.toString()));
-    }
-
-    @Override
-    public void BroadcastReceived(String sourceIpAddress, String controllerId) {
-        logger.debug("Received broadcast from {}", sourceIpAddress);
     }
 }

@@ -66,20 +66,20 @@ public class Discovery implements Runnable {
                     String contentsString = new String(packet.getData(), 0, packet.getLength());
                     JSONObject contents = new JSONObject(contentsString);
 
-                    if (!contents.has(MessageField.TYPE.toString())) {
+                    if (!contents.has(MessageField.TYPE.Value())) {
                         continue;
                     }
 
-                    String receivedType = contents.getString(MessageField.TYPE.toString());
+                    String receivedType = contents.getString(MessageField.TYPE.Value());
                     if (receivedType.compareTo(this.discoveryMessageType.toString()) != 0) {
                         continue;
                     }
 
-                    if (!contents.has(MessageField.CONTROLLER_ID.toString())) {
+                    if (!contents.has(MessageField.CONTROLLER_ID.Value())) {
                         continue;
                     }
 
-                    String controllerId = contents.getString(MessageField.CONTROLLER_ID.toString());
+                    String controllerId = contents.getString(MessageField.CONTROLLER_ID.Value());
                     this.discoveryCallback.BroadcastReceived(address, controllerId);
                 } catch (SocketTimeoutException | JSONException e) {
 
@@ -97,8 +97,8 @@ public class Discovery implements Runnable {
 
     protected static void Broadcast(MessageType messageType, String controllerId) {
         JSONObject message = new JSONObject();
-        message.put(MessageField.TYPE.toString(), messageType.toString());
-        message.put(MessageField.CONTROLLER_ID.toString(), controllerId);
+        message.put(MessageField.TYPE.Value(), messageType.toString());
+        message.put(MessageField.CONTROLLER_ID.Value(), controllerId);
 
         DatagramSocket socket = null;
         try {

@@ -14,7 +14,9 @@ public class Main {
         keyVault.Start();
 
         while (true) {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
+            logger.info("Running");
+            keyVault.Kick();
         }
     }
 }

@@ -1,7 +1,7 @@
-package org.mockup.common;
+package org.mockup.common.communication;
 
 import org.json.JSONObject;
 
-public interface ICommunicationCallback {
+public interface IReceiverCallback {
     public void HandleMessage(String senderIpAddress, JSONObject contents);
 }
