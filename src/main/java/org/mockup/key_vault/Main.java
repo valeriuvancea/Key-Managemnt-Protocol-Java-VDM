@@ -16,7 +16,6 @@ public class Main {
         while (true) {
             Thread.sleep(5000);
             logger.info("Running");
-            keyVault.Kick();
         }
     }
 }

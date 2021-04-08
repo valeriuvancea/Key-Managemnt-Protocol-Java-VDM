@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
+import org.mockup.common.Common;
 import org.mockup.common.communication.IReceiverCallback;
 import org.mockup.common.communication.Sender;
 import org.slf4j.Logger;
@@ -15,21 +16,23 @@ public class ProtocolContext implements IReceiverCallback {
     private final Logger logger = LoggerFactory.getLogger(ProtocolContext.class);
     private final Timer timeoutTimer;
     private final IContextTerminatedCallback terminatedCallback;
+    private final byte[] associatedId;
     private final String associatedIdString;
     private final Sender sender;
 
     private ProtocolState currentState;
     private TimeoutTask timeoutTask;
 
-    public ProtocolContext(String associatedIdString, Sender sender, IContextTerminatedCallback terminatedCallback) {
+    public ProtocolContext(byte[] associatedId, Sender sender, IContextTerminatedCallback terminatedCallback) {
         this.currentState = null;
         this.timeoutTimer = new Timer();
         this.terminatedCallback = terminatedCallback;
-        this.associatedIdString = associatedIdString;
         this.sender = sender;
+        this.associatedId = associatedId;
+        this.associatedIdString = Common.ByteArrayToString(associatedId);
     }
 
-    public void StartContext(ProtocolState startState) {
+    public void Start(ProtocolState startState) {
         if (currentState != null) {
             return;
         }
@@ -37,7 +40,7 @@ public class ProtocolContext implements IReceiverCallback {
         this.StartNewState(startState);
     }
 
-    public void StopContext() {
+    public void Stop() {
         if (currentState == null) {
             return;
         }

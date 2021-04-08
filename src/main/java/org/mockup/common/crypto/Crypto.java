@@ -251,7 +251,7 @@ public class Crypto {
         }
     }
 
-    private Pair<byte[], byte[]> GenerateKeyPairTPM(String pkFilePath, String skFilePath)
+    public static Pair<byte[], byte[]> GenerateKeyPairTPM(String pkFilePath, String skFilePath)
             throws IOException, InterruptedException {
         Crypto.RunCommand(String.format("tpm2tss-genkey -a rsa -s 2048 %s", skFilePath));
         Crypto.RunCommand(
@@ -262,7 +262,7 @@ public class Crypto {
         return new Pair<byte[], byte[]>(pkBytes, skBytes);
     }
 
-    private byte[] GenerateRandomByteArrayTPM(int numberOfBytes) throws IOException, InterruptedException {
+    public static byte[] GenerateRandomByteArrayTPM(int numberOfBytes) throws IOException, InterruptedException {
         synchronized (Crypto.class) {
             try {
                 Crypto.RunCommand(String.format("openssl rand -out %s -engine tpm2tss -hex %s", Crypto.TEMP_DATA_FILE,
@@ -276,11 +276,11 @@ public class Crypto {
         }
     }
 
-    private byte[] GenerateRandomByteArrayTPM() throws IOException, InterruptedException {
-        return this.GenerateRandomByteArrayTPM(128);
+    public static byte[] GenerateRandomByteArrayTPM() throws IOException, InterruptedException {
+        return Crypto.GenerateRandomByteArrayTPM(128);
     }
 
-    private byte[] SignTPM(String skFilePath, byte[] data) throws IOException, InterruptedException {
+    public static byte[] SignTPM(String skFilePath, byte[] data) throws IOException, InterruptedException {
         synchronized (Crypto.class) {
             try {
                 byte[] digest = Crypto.GetDataDigest(data);
@@ -297,7 +297,7 @@ public class Crypto {
         }
     }
 
-    private byte[] DecryptTPM(String skFilePath, byte[] cipher) throws IOException, InterruptedException {
+    public static byte[] DecryptTPM(String skFilePath, byte[] cipher) throws IOException, InterruptedException {
         synchronized (Crypto.class) {
             try {
                 Common.WriteToFile(cipher, Crypto.TEMP_CIPHER_FILE);

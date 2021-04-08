@@ -6,10 +6,7 @@ import org.mockup.common.protocol.ProtocolContext;
 
 public class KeyVaultProtocolContext extends ProtocolContext {
 
-    public KeyVaultProtocolContext(String associatedIdString, Sender sender,
-            IContextTerminatedCallback terminatedCallback) {
-        super(associatedIdString, sender, terminatedCallback);
-        // TODO Auto-generated constructor stub
+    public KeyVaultProtocolContext(byte[] associatedId, Sender sender, IContextTerminatedCallback terminatedCallback) {
+        super(associatedId, sender, terminatedCallback);
     }
-
 }
