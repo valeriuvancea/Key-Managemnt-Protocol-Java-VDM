@@ -2,6 +2,7 @@ package org.mockup.key_vault.protocol;
 
 import java.io.IOException;
 
+import javax.swing.event.ChangeListener;
 import javax.xml.soap.MessageFactory;
 
 import org.json.JSONObject;
@@ -28,6 +29,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     private final Logger logger = LoggerFactory.getLogger(KeyVaultProtocolContext.class);
 
     private byte[] controllerCertificate;
+    private String challengeString;
 
     public KeyVaultProtocolContext(String controllerAddress, byte[] associatedId, Sender sender,
             IContextTerminatedCallback terminatedCallback) throws IOException {
@@ -36,16 +38,48 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         this.certKeyVault = Common.ReadFromFile(KeyVaultProtocolContext.CERT_KV_FILE_PATH);
     }
 
-    public byte[] SendChallenge() {
+    public Boolean CheckChallengeAnswer(String answer) {
+        return answer.equals(this.challengeString);
+    }
+
+    public void GenerateStashEncryptAndSendChallenge() {
+        byte[] challenge = this.GenerateChallenge();
+
+        if (challenge == null) {
+            return;
+        }
+
+        this.challengeString = Common.ByteArrayToString(challenge);
+        byte[] encryptedChallenge = this.EncryptChallenge(challenge);
+
+        if (encryptedChallenge == null) {
+            return;
+        }
+
+        this.SendEncryptedChallenge(encryptedChallenge);
+    }
+
+    public void SendEncryptedChallenge(byte[] encryptedChallenge) {
+        String encryptedChallengeString = Common.ByteArrayToString(encryptedChallenge);
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.ENCRYPTED_CHALLENGE.Value(), encryptedChallengeString);
+        this.SendMessageToController(MessageType.CHALLENGE_SUBMISSION, contents);
+    }
+
+    public byte[] EncryptChallenge(byte[] challenge) {
         try {
-            byte[] challenge = Crypto.GenerateRandomByteArray();
-            byte[] encryptedChallenge = Crypto.Encrypt(this.GetControllerCertificate(), challenge);
-            JSONObject contents = new JSONObject();
-            contents.put(MessageField.ENCRYPTED_CHALLENGE.Value(), Common.ByteArrayToString(encryptedChallenge));
-            this.SendMessageToController(MessageType.CHALLENGE_SUBMISSION, contents);
-            return challenge;
+            return Crypto.Encrypt(this.GetControllerCertificate(), challenge);
         } catch (Exception e) {
-            logger.error("Failed to generate challenge");
+            logger.error("Failed to encrypt challenge.");
+            return null;
+        }
+    }
+
+    public byte[] GenerateChallenge() {
+        try {
+            return Crypto.GenerateRandomByteArray();
+        } catch (Exception e) {
+            logger.error("Failed to generate challenge.");
             return null;
         }
     }

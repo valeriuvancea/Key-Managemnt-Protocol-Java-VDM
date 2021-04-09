@@ -3,6 +3,7 @@ package org.mockup.controller.protocol;
 import java.io.IOException;
 
 import org.json.JSONObject;
+import org.apache.commons.codec.digest.Crypt;
 import org.javatuples.Pair;
 import org.mockup.common.Common;
 import org.mockup.common.communication.Sender;
@@ -11,6 +12,8 @@ import org.mockup.common.protocol.IContextTerminatedCallback;
 import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 import org.mockup.common.protocol.ProtocolContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ControllerProtocolContext extends ProtocolContext {
     public static final String CERT_M_FILE_PATH = "store/cert_m";
@@ -23,6 +26,8 @@ public class ControllerProtocolContext extends ProtocolContext {
     private final byte[] certController;
 
     private String keyVaultIpAddress;
+
+    private final Logger logger = LoggerFactory.getLogger(ControllerProtocolContext.class);
 
     public ControllerProtocolContext(Sender sender, IContextTerminatedCallback terminatedCallback)
             throws IOException, InterruptedException {
@@ -41,6 +46,31 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
+    }
+
+    public void DecryptAndSendChallengeAnswer(String encryptedChallenge) {
+        String answer = this.DecryptChallenge(encryptedChallenge);
+
+        if (answer != null) {
+            this.SendDecryptedChallenge(answer);
+        }
+    }
+
+    public void SendDecryptedChallenge(String decryptedChallenge) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
+        this.SendMessageToKeyVault(MessageType.CHALLENGE_ANSWER, contents);
+    }
+
+    public String DecryptChallenge(String encryptedChallenge) {
+        try {
+            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
+            byte[] text = Crypto.DecryptTPM(ControllerProtocolContext.SK_CT_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt challenge");
+            return null;
+        }
     }
 
     public void SendJoinRequest() {
