@@ -7,9 +7,10 @@ import org.mockup.common.protocol.MessageType;
 
 public abstract class OperationalState extends ControllerProtocolState {
     public OperationalState(int timeout, MessageType... operationalMessages) {
-        super(0, ArrayUtil.addToArray(
-                ArrayUtil.addToArray(operationalMessages, MessageType.RE_KEY_REQUEST, MessageType.class),
-                MessageType.CONTROLLER_CERTIFICATE_UPDATE, MessageType.class));
+        super(timeout,
+                ArrayUtil.addToArray(
+                        ArrayUtil.addToArray(operationalMessages, MessageType.RE_KEY_REQUEST, MessageType.class),
+                        MessageType.CONTROLLER_CERTIFICATE_UPDATE, MessageType.class));
     }
 
     public abstract void OnOperationalMessageReceived(String senderIpAddress, JSONObject message);

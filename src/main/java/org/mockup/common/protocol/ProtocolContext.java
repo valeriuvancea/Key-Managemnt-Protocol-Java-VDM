@@ -77,8 +77,6 @@ public class ProtocolContext implements IReceiverCallback {
             /* Make sure message type can be handled by the current state. */
             MessageType type = MessageType.ByValue(contents.optString(MessageField.TYPE.Value()));
             if (!Stream.of(this.currentState.GetExpectedTypes()).anyMatch(x -> x == type)) {
-                logger.error("Received message {} could not be handled by state {}", type,
-                        this.currentState.getClass());
                 return;
             }
 

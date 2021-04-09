@@ -50,8 +50,6 @@ public class Receiver implements Route, Runnable {
         try {
             String senderAddress = request.ip();
             JSONObject contents = new JSONObject(contentsString);
-            // System.out.println(contents.getString(MessageField.TYPE.Value()) + " "
-            // + contents.getString(MessageField.CONTROLLER_ID.Value()));
 
             synchronized (this.messages) {
                 this.messages.add(new Pair<String, JSONObject>(senderAddress, contents));

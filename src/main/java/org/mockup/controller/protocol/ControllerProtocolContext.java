@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONObject;
-import org.apache.commons.codec.digest.Crypt;
 import org.javatuples.Pair;
 import org.mockup.common.Common;
 import org.mockup.common.communication.Sender;
@@ -35,6 +34,9 @@ public class ControllerProtocolContext extends ProtocolContext {
     private String challengeString;
     private String keyVaultIpAddress;
     private byte[] keyVaultCertificate;
+    private byte[] otherControllerEffectiveCertificate;
+    private String otherControllerIpAddress;
+    private String otherControllerIdString;
     private AtomicReference<String> effectiveCertificateString;
     private AtomicBoolean hasJoined;
 
@@ -56,6 +58,51 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
         this.hasJoined = new AtomicBoolean(false);
         this.effectiveCertificateString = new AtomicReference<>();
+    }
+
+    public void SaveOtherControllerInformation(String ipAddress, String idString, String certificateString) {
+        this.otherControllerIdString = idString;
+        this.otherControllerIpAddress = ipAddress;
+        this.otherControllerEffectiveCertificate = Common.StringToByteArray(certificateString);
+    }
+
+    public void SendMessageToOtherController(String messageString) {
+        String cipher = this.EncryptMessageToOtherController(messageString);
+
+        if (cipher == null) {
+            return;
+        }
+
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
+        contents.put(MessageField.SENDER_ID.Value(), this.GetAssociateIdString());
+        contents.put(MessageField.ENCRYPTED_DATA.Value(), cipher);
+        contents.put(MessageField.TYPE.Value(), MessageType.DUMMY_MESSAGE.Value());
+        this.sender.SendMessage(this.otherControllerIpAddress, contents);
+    }
+
+    public String DecryptMessageFromOtherController(String messageString) {
+        byte[] cipher = Common.StringToByteArray(messageString);
+        byte[] text;
+        try {
+            text = Crypto.DecryptTPM(ControllerProtocolContext.SK_EFF_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt message form other controller.");
+            return null;
+        }
+    }
+
+    public String EncryptMessageToOtherController(String messageString) {
+        byte[] messageBytes = Common.StringToByteArray(messageString);
+
+        try {
+            byte[] cipherBytes = Crypto.Encrypt(this.otherControllerEffectiveCertificate, messageBytes);
+            return Common.ByteArrayToString(cipherBytes);
+        } catch (Exception e) {
+            logger.error("Failed to encrypt message to other controller.");
+            return null;
+        }
     }
 
     public boolean HasJoined() {
