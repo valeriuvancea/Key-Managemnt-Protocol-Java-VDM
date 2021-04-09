@@ -19,7 +19,18 @@ public class SendSigningRequestState extends ControllerProtocolState {
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
+        String controllerIdString = message.getString(MessageField.CONTROLLER_ID.Value());
+        String effectiveCertificateString = message.getString(MessageField.CERT_EFF.Value());
+        String caCertificateString = message.getString(MessageField.CERT_CA.Value());
+        String hashString = message.getString(MessageField.HASH.Value());
 
+        if (this.GetContext().CheckSigningReplySignature(controllerIdString, effectiveCertificateString,
+                caCertificateString, hashString)) {
+            this.GetContext().SaveEffectiveKeys(effectiveCertificateString);
+            this.GetContext().GoToNext(new SendSignatureAckState());
+        } else {
+            this.GetContext().Terminate();
+        }
     }
 
     @Override

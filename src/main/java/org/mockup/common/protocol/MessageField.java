@@ -45,7 +45,7 @@ public enum MessageField {
             return new MessageField[] { TYPE, CONTROLLER_ID };
         }
         case SIGNING_REPLY: {
-            return new MessageField[] { TYPE, CONTROLLER_ID, CERT_EFF, CERT_CA };
+            return new MessageField[] { TYPE, CONTROLLER_ID, CERT_EFF, CERT_CA, HASH };
         }
         case SIGNING_REQUEST: {
             return new MessageField[] { TYPE, CONTROLLER_ID, PK_EFF, HASH };

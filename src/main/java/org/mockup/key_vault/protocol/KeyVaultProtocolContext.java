@@ -20,11 +20,14 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     public static final String CERT_CA_FILE_PATH = "store/cert_ca";
     public static final String SK_KV_FILE_PATH = "store/sk_kv";
     public static final String PK_KV_FILE_PATH = "store/pk_kv";
+    public static final String SK_CA_FILE_PATH = "store/sk_ca";
+    public static final String PK_CA_FILE_PATH = "store/pk_ca";
     public static final String CERT_KV_FILE_PATH = "store/cert_kv";
     public static final String CERT_M_FILE_PATH = "store/cert_m";
 
     private final String controllerAddress;
     private final String keyVaultCertificateString;
+    private final String caCertificateString;
 
     private final Logger logger = LoggerFactory.getLogger(KeyVaultProtocolContext.class);
 
@@ -38,6 +41,64 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         this.controllerAddress = controllerAddress;
         this.keyVaultCertificateString = Common
                 .ByteArrayToString(Common.ReadFromFile(KeyVaultProtocolContext.CERT_KV_FILE_PATH));
+        this.caCertificateString = Common
+                .ByteArrayToString(Common.ReadFromFile(KeyVaultProtocolContext.CERT_CA_FILE_PATH));
+    }
+
+    public void SaveEffectiveCertificate(String effectiveCertificate) {
+        this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
+    }
+
+    public String GenerateAndSendEffectiveCertificate(String effectiveKeyString) {
+        String certificate = this.GenerateEffectiveCertificate(effectiveKeyString);
+
+        if (certificate == null) {
+            return "";
+        }
+
+        String hash = this.GetEffectiveCertificateSignature(this.GetAssociateIdString(), certificate,
+                this.caCertificateString);
+
+        if (hash == null) {
+            return "";
+        }
+
+        this.SendEffectiveCertificate(certificate, this.caCertificateString, hash);
+
+        return certificate;
+    }
+
+    public void SendEffectiveCertificate(String effectiveCertificateString, String caCertificateString, String hash) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
+        contents.put(MessageField.CERT_CA.Value(), caCertificateString);
+        contents.put(MessageField.HASH.Value(), hash);
+        this.SendMessageToController(MessageType.SIGNING_REPLY, contents);
+    }
+
+    public String GetEffectiveCertificateSignature(String controllerIdString, String effectiveCertificateString,
+            String caCertificateString) {
+        String dataString = controllerIdString.concat(effectiveCertificateString).concat(caCertificateString);
+        byte[] data = Common.StringToByteArray(dataString);
+        try {
+            byte[] signature = Crypto.Sign(KeyVaultProtocolContext.SK_KV_FILE_PATH, data);
+            return Common.ByteArrayToString(signature);
+        } catch (Exception e) {
+            logger.error("Failed to generate signature for signing reply.");
+            return null;
+        }
+    }
+
+    public String GenerateEffectiveCertificate(String effectiveKeyString) {
+        byte[] effectiveKey = Common.StringToByteArray(effectiveKeyString);
+        try {
+            byte[] certificate = Crypto.GenerateCertificate(KeyVaultProtocolContext.CERT_CA_FILE_PATH,
+                    KeyVaultProtocolContext.SK_CA_FILE_PATH, effectiveKey, this.GetAssociateIdString());
+            return Common.ByteArrayToString(certificate);
+        } catch (Exception e) {
+            logger.error("Failed to generate controller effective key certificate");
+            return null;
+        }
     }
 
     public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature,

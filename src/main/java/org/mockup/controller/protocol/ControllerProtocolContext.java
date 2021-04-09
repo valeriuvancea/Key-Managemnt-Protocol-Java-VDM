@@ -33,6 +33,7 @@ public class ControllerProtocolContext extends ProtocolContext {
     private String challengeString;
     private String keyVaultIpAddress;
     private byte[] keyVaultCertificate;
+    private String effectiveCertificateString;
 
     public ControllerProtocolContext(Sender sender, IContextTerminatedCallback terminatedCallback)
             throws IOException, InterruptedException {
@@ -51,6 +52,32 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
+    }
+
+    public void SendSignatureAck() {
+        this.SendMessageToKeyVault(MessageType.SIGNING_ACK);
+    }
+
+    public void SaveEffectiveKeys(String effectiveCertificateString) {
+        this.effectiveCertificateString = effectiveCertificateString;
+        Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
+                ControllerProtocolContext.PK_EFF_FILE_PATH);
+        Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
+                ControllerProtocolContext.SK_EFF_FILE_PATH);
+    }
+
+    public Boolean CheckSigningReplySignature(String controllerIdString, String effectiveCertificateString,
+            String caCertificateString, String expectedSignatureString) {
+        byte[] expectedSignature = Common.StringToByteArray(expectedSignatureString);
+        String dataString = controllerIdString.concat(effectiveCertificateString).concat(caCertificateString);
+        byte[] data = Common.StringToByteArray(dataString);
+
+        try {
+            return Crypto.IsSignatureValid(this.keyVaultCertificate, data, expectedSignature);
+        } catch (Exception e) {
+            logger.error("Failed to verify signing request reply.");
+            return false;
+        }
     }
 
     public void GenerateAndSendSigningRequest(Boolean first) {
