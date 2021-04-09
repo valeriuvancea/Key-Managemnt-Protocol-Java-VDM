@@ -29,7 +29,7 @@ public class ControllerProtocolContext extends ProtocolContext {
                     ControllerProtocolContext.SK_CT_FILE_PATH);
             byte[] certControllerProtocolContext = Crypto.GenerateCertificate(
                     ControllerProtocolContext.CERT_M_FILE_PATH, ControllerProtocolContext.SK_M_FILE_PATH,
-                    controllerKeys.getValue0(), this.GetAssociatedIdString());
+                    controllerKeys.getValue0(), this.associatedIdString);
             Common.WriteToFile(certControllerProtocolContext, ControllerProtocolContext.CERT_CT_FILE_PATH);
 
             Common.RemoveFile(ControllerProtocolContext.SK_M_FILE_PATH);

@@ -16,9 +16,10 @@ public class ProtocolContext implements IReceiverCallback {
     private final Logger logger = LoggerFactory.getLogger(ProtocolContext.class);
     private final Timer timeoutTimer;
     private final IContextTerminatedCallback terminatedCallback;
-    private final byte[] associatedId;
-    private final String associatedIdString;
-    private final Sender sender;
+
+    protected final byte[] associatedId;
+    protected final String associatedIdString;
+    protected final Sender sender;
 
     private ProtocolState currentState;
     private TimeoutTask timeoutTask;
@@ -30,6 +31,10 @@ public class ProtocolContext implements IReceiverCallback {
         this.sender = sender;
         this.associatedId = associatedId;
         this.associatedIdString = Common.ByteArrayToString(associatedId);
+    }
+
+    public String GetAssociateIdString() {
+        return this.associatedIdString;
     }
 
     public void Start(ProtocolState startState) {
@@ -60,10 +65,6 @@ public class ProtocolContext implements IReceiverCallback {
 
         this.StopCurrentState();
         this.StartNewState(state);
-    }
-
-    public String GetAssociatedIdString() {
-        return this.associatedIdString;
     }
 
     @Override
@@ -118,7 +119,7 @@ public class ProtocolContext implements IReceiverCallback {
         }
     }
 
-    private void SendMessage(String ipAddress, MessageType messageType, JSONObject message) {
+    protected void SendMessage(String ipAddress, MessageType messageType, JSONObject message) {
         message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
         message.put(MessageField.TYPE.Value(), messageType.Value());
         this.sender.SendMessage(ipAddress, message);

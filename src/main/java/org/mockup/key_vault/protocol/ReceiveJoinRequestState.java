@@ -16,7 +16,7 @@ public class ReceiveJoinRequestState extends KeyVaultProtocolState {
 
     @Override
     public void OnStart() {
-
+        this.GetContext().SendMessageToController(MessageType.KEY_VAULT_DISCOVERY_REPLY);
     }
 
     @Override

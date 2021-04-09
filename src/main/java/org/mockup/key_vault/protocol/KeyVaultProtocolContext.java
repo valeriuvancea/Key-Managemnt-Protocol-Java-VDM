@@ -2,9 +2,11 @@ package org.mockup.key_vault.protocol;
 
 import java.io.IOException;
 
+import org.json.JSONObject;
 import org.mockup.common.Common;
 import org.mockup.common.communication.Sender;
 import org.mockup.common.protocol.IContextTerminatedCallback;
+import org.mockup.common.protocol.MessageType;
 import org.mockup.common.protocol.ProtocolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,5 +27,13 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         super(associatedId, sender, terminatedCallback);
         this.controllerAddress = controllerAddress;
         this.certKeyVault = Common.ReadFromFile(KeyVaultProtocolContext.CERT_KV_FILE_PATH);
+    }
+
+    public void SendMessageToController(MessageType type, JSONObject contents) {
+        this.SendMessage(this.controllerAddress, type, contents);
+    }
+
+    public void SendMessageToController(MessageType type) {
+        this.SendMessage(this.controllerAddress, type, new JSONObject());
     }
 }

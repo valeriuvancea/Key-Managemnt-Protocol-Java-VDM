@@ -11,11 +11,12 @@ public class FindKeyVaultState extends ControllerProtocolState {
 
     @Override
     public void OnMessageReceived(JSONObject message) {
+        System.out.println("something");
     }
 
     @Override
     public void OnStart() {
-        KeyVaultDiscovery.BroadcastDiscoveryRequest(this.GetContext().GetAssociatedIdString());
+        KeyVaultDiscovery.BroadcastDiscoveryRequest(this.GetContext().GetAssociateIdString());
     }
 
     @Override
