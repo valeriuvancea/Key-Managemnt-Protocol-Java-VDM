@@ -37,6 +37,7 @@ public class ControllerProtocolContext extends ProtocolContext {
     private byte[] otherControllerEffectiveCertificate;
     private String otherControllerIpAddress;
     private String otherControllerIdString;
+    private boolean otherControllerFound;
     private AtomicReference<String> effectiveCertificateString;
     private AtomicBoolean hasJoined;
 
@@ -58,15 +59,31 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
         this.hasJoined = new AtomicBoolean(false);
         this.effectiveCertificateString = new AtomicReference<>();
+
+        this.otherControllerIdString = null;
+        this.otherControllerIpAddress = null;
+        this.otherControllerEffectiveCertificate = null;
+        this.otherControllerFound = false;
+    }
+
+    public void UpdateEffectiveCertificateToOtherController() {
+        this.SendEffectiveCertificateToOtherController(this.GetEffectiveCertificateString());
+    }
+
+    public void SendEffectiveCertificateToOtherController(String effectiveCertificateString) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
+        this.SendMessageToOtherController(MessageType.CONTROLLER_CERTIFICATE_UPDATE, contents);
     }
 
     public void SaveOtherControllerInformation(String ipAddress, String idString, String certificateString) {
+        this.otherControllerFound = true;
         this.otherControllerIdString = idString;
         this.otherControllerIpAddress = ipAddress;
         this.otherControllerEffectiveCertificate = Common.StringToByteArray(certificateString);
     }
 
-    public void SendMessageToOtherController(String messageString) {
+    public void EncryptAndSendToOtherController(String messageString) {
         String cipher = this.EncryptMessageToOtherController(messageString);
 
         if (cipher == null) {
@@ -74,11 +91,12 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         JSONObject contents = new JSONObject();
-        contents.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
-        contents.put(MessageField.SENDER_ID.Value(), this.GetAssociateIdString());
         contents.put(MessageField.ENCRYPTED_DATA.Value(), cipher);
-        contents.put(MessageField.TYPE.Value(), MessageType.DUMMY_MESSAGE.Value());
-        this.sender.SendMessage(this.otherControllerIpAddress, contents);
+        this.SendMessageToOtherController(MessageType.DUMMY_MESSAGE, contents);
+    }
+
+    public Boolean HasFoundOtherController() {
+        return this.otherControllerFound;
     }
 
     public String DecryptMessageFromOtherController(String messageString) {
@@ -293,6 +311,13 @@ public class ControllerProtocolContext extends ProtocolContext {
 
     public void SetKeyVaultIpAddress(String address) {
         this.keyVaultIpAddress = address;
+    }
+
+    public void SendMessageToOtherController(MessageType type, JSONObject contents) {
+        contents.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
+        contents.put(MessageField.SENDER_ID.Value(), this.GetAssociateIdString());
+        contents.put(MessageField.TYPE.Value(), type.Value());
+        this.sender.SendMessage(this.otherControllerIpAddress, contents);
     }
 
     public void SendMessageToKeyVault(MessageType type, JSONObject contents) {

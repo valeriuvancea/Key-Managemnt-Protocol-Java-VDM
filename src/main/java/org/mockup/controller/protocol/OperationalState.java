@@ -23,6 +23,12 @@ public abstract class OperationalState extends ControllerProtocolState {
             this.GetContext().GoToNext(new SendSigningRequestState());
             break;
         }
+        case CONTROLLER_CERTIFICATE_UPDATE: {
+            String idString = message.getString(MessageField.SENDER_ID.Value());
+            String certificateString = message.getString(MessageField.CERT_EFF.Value());
+            this.GetContext().SaveOtherControllerInformation(senderIpAddress, idString, certificateString);
+            break;
+        }
         default: {
             this.OnOperationalMessageReceived(senderIpAddress, message);
             break;

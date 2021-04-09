@@ -18,7 +18,7 @@ public class DummyCommunicationState extends OperationalState {
     public void OnStart() {
         String message = String.format("Hello from %s", this.GetContext().GetAssociateIdString());
         byte[] messageBytes = message.getBytes();
-        this.GetContext().SendMessageToOtherController(Common.ByteArrayToString(messageBytes));
+        this.GetContext().EncryptAndSendToOtherController(Common.ByteArrayToString(messageBytes));
     }
 
     @Override
@@ -30,6 +30,11 @@ public class DummyCommunicationState extends OperationalState {
     public void OnOperationalMessageReceived(String senderIpAddress, JSONObject message) {
         String encryptedMessageString = message.getString(MessageField.ENCRYPTED_DATA.Value());
         String decryptedMessageString = this.GetContext().DecryptMessageFromOtherController(encryptedMessageString);
+
+        if (decryptedMessageString == null) {
+            return;
+        }
+
         String messageFromOtherController = new String(Common.StringToByteArray(decryptedMessageString));
         logger.info(String.format("Received encrypted message: %s", messageFromOtherController));
     }
