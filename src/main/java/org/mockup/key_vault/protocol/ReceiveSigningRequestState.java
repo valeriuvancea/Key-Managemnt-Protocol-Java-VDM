@@ -13,7 +13,7 @@ public class ReceiveSigningRequestState extends KeyVaultProtocolState {
     }
 
     public ReceiveSigningRequestState() {
-        super(9, MessageType.SIGNING_REQUEST);
+        super(15, MessageType.SIGNING_REQUEST);
         this.challenge = null;
     }
 

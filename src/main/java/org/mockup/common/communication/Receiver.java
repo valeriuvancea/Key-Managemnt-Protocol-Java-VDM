@@ -12,6 +12,7 @@ import spark.Spark;
 
 import org.javatuples.Pair;
 import org.json.*;
+import org.mockup.common.protocol.MessageField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +50,14 @@ public class Receiver implements Route, Runnable {
         try {
             String senderAddress = request.ip();
             JSONObject contents = new JSONObject(contentsString);
+            // System.out.println(contents.getString(MessageField.TYPE.Value()) + " "
+            // + contents.getString(MessageField.CONTROLLER_ID.Value()));
+
             synchronized (this.messages) {
                 this.messages.add(new Pair<String, JSONObject>(senderAddress, contents));
                 this.messages.notifyAll();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,17 +70,20 @@ public class Receiver implements Route, Runnable {
         while (this.run.get()) {
             try {
                 Pair<String, JSONObject> pair = null;
-                synchronized (this.messages) {
-                    this.messages.wait();
-                    pair = this.messages.poll();
+
+                if (this.messages.isEmpty()) {
+                    synchronized (this.messages) {
+                        this.messages.wait();
+                    }
                 }
 
-                if (pair == null) {
-                    continue;
-                }
+                pair = this.messages.poll();
 
-                this.callback.HandleMessage(pair.getValue0(), pair.getValue1());
+                if (pair != null) {
+                    this.callback.HandleMessage(pair.getValue0(), pair.getValue1());
+                }
             } catch (InterruptedException e) {
+                logger.error("Error while processing received messages.");
             }
         }
     }

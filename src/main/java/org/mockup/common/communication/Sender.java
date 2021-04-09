@@ -27,8 +27,7 @@ public class Sender {
 
         try {
             client.execute(request);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             logger.error("Failed to send message to {}. Contents: {}", destinationIpAddress, messageContents);
         } finally {
             try {

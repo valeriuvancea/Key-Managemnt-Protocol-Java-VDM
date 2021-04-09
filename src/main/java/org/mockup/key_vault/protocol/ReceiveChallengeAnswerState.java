@@ -6,7 +6,7 @@ import org.mockup.common.protocol.MessageType;
 
 public class ReceiveChallengeAnswerState extends KeyVaultProtocolState {
     public ReceiveChallengeAnswerState() {
-        super(9, MessageType.CHALLENGE_ANSWER);
+        super(15, MessageType.CHALLENGE_ANSWER);
     }
 
     @Override

@@ -6,7 +6,7 @@ import org.mockup.common.protocol.MessageType;
 
 public class SendChallengeState extends ControllerProtocolState {
     public SendChallengeState() {
-        super(9, MessageType.CHALLENGE_ANSWER);
+        super(15, MessageType.CHALLENGE_ANSWER);
     }
 
     @Override

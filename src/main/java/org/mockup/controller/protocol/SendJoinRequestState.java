@@ -6,7 +6,7 @@ import org.mockup.common.protocol.MessageType;
 
 public class SendJoinRequestState extends ControllerProtocolState {
     public SendJoinRequestState() {
-        super(9, MessageType.CHALLENGE_SUBMISSION);
+        super(15, MessageType.CHALLENGE_SUBMISSION);
     }
 
     @Override

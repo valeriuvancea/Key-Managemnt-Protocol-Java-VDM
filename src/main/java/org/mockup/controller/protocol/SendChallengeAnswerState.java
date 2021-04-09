@@ -8,7 +8,7 @@ public class SendChallengeAnswerState extends ControllerProtocolState {
     private final String challenge;
 
     public SendChallengeAnswerState(String challenge) {
-        super(9, MessageType.KEY_VAULT_CERTIFICATE);
+        super(15, MessageType.KEY_VAULT_CERTIFICATE);
         this.challenge = challenge;
     }
 

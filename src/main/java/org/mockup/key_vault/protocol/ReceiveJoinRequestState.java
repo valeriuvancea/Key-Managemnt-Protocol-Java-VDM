@@ -7,7 +7,7 @@ import org.mockup.common.protocol.MessageType;
 public class ReceiveJoinRequestState extends KeyVaultProtocolState {
 
     public ReceiveJoinRequestState() {
-        super(9, MessageType.JOIN_REQUEST);
+        super(15, MessageType.JOIN_REQUEST);
     }
 
     @Override

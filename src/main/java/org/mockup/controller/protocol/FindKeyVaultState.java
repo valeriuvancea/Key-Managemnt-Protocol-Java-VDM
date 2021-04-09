@@ -6,7 +6,7 @@ import org.mockup.common.protocol.MessageType;
 
 public class FindKeyVaultState extends ControllerProtocolState {
     public FindKeyVaultState() {
-        super(5, MessageType.KEY_VAULT_DISCOVERY_REPLY);
+        super(3, MessageType.KEY_VAULT_DISCOVERY_REPLY);
     }
 
     @Override

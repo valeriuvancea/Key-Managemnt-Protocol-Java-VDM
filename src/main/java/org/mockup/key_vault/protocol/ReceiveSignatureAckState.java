@@ -8,7 +8,7 @@ public class ReceiveSignatureAckState extends KeyVaultProtocolState {
     private String effectiveCertificate;
 
     public ReceiveSignatureAckState(String effectiveKeyString) {
-        super(9, MessageType.SIGNING_ACK);
+        super(15, MessageType.SIGNING_ACK);
         this.effectiveKeyString = effectiveKeyString;
     }
 

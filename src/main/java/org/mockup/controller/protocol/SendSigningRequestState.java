@@ -6,7 +6,7 @@ import org.mockup.common.protocol.MessageType;
 
 public class SendSigningRequestState extends ControllerProtocolState {
     public SendSigningRequestState() {
-        super(9, MessageType.SIGNING_REPLY);
+        super(15, MessageType.SIGNING_REPLY);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class SendSigningRequestState extends ControllerProtocolState {
 
     private void HandleStateFailure() {
         if (this.GetContext().HasJoined()) {
-            this.GetContext().GoToNext(new OperationalState());
+            this.GetContext().GoToNext(new FindOtherControllerState());
         } else {
             this.GetContext().Terminate();
         }

@@ -15,7 +15,7 @@ public class SendSignatureAckState extends ControllerProtocolState {
     @Override
     public void OnStart() {
         this.GetContext().SendSignatureAck();
-        this.GetContext().GoToNext(new OperationalState());
+        this.GetContext().GoToNext(new FindOtherControllerState());
     }
 
     @Override
