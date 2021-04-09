@@ -4,20 +4,22 @@ import org.json.JSONObject;
 import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 
-public class ReceiveChallengeState extends KeyVaultProtocolState {
-    public ReceiveChallengeState() {
-        super(9, MessageType.CHALLENGE_SUBMISSION);
+public class ReceiveSignatureAckState extends KeyVaultProtocolState {
+    private String controllerEffectiveKeyString;
+
+    public ReceiveSignatureAckState(String controllerEffectiveKeyString) {
+        super(9, MessageType.SIGNING_ACK);
+        this.controllerEffectiveKeyString = controllerEffectiveKeyString;
     }
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
-        String challenge = message.getString(MessageField.ENCRYPTED_CHALLENGE.Value());
-        this.GetContext().GoToNext(new ReceiveSigningRequest(challenge));
+
     }
 
     @Override
     public void OnStart() {
-        this.GetContext().SendKeyVaultCertificate();
+
     }
 
     @Override
