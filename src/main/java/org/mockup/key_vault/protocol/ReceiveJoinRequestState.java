@@ -1,6 +1,7 @@
 package org.mockup.key_vault.protocol;
 
 import org.json.JSONObject;
+import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 
 public class ReceiveJoinRequestState extends KeyVaultProtocolState {
@@ -11,7 +12,14 @@ public class ReceiveJoinRequestState extends KeyVaultProtocolState {
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
-        System.out.println("Key vault");
+        String controllerCertString = message.getString(MessageField.CERT_CT.Value());
+
+        if (this.GetContext().CheckControllerCertificate(controllerCertString)) {
+            this.GetContext().SaveControllerCertificate(controllerCertString);
+            this.GetContext().GoToNext(new ReceiveChallengeAnswerState());
+        } else {
+            this.GetContext().Terminate();
+        }
     }
 
     @Override
