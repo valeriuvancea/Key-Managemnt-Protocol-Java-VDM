@@ -70,8 +70,8 @@ public class KeyVault implements IDiscoveryCallback, IReceiverCallback, IContext
             KeyVaultProtocolContext context = new KeyVaultProtocolContext(sourceIpAddress,
                     Common.StringToByteArray(controllerIdString), new Sender(), this);
             this.contextsMap.put(controllerIdString, context);
-            context.Start(new ReceiveJoinRequestState());
             this.logger.info("Key vault context associated with {} was created and started.", controllerIdString);
+            context.Start(new ReceiveJoinRequestState());
         } catch (IOException e) {
             logger.error("Failed to create new key vault protocol context.");
         }

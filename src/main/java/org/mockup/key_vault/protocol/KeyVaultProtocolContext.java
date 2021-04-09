@@ -2,11 +2,14 @@ package org.mockup.key_vault.protocol;
 
 import java.io.IOException;
 
+import javax.xml.soap.MessageFactory;
+
 import org.json.JSONObject;
 import org.mockup.common.Common;
 import org.mockup.common.communication.Sender;
 import org.mockup.common.crypto.Crypto;
 import org.mockup.common.protocol.IContextTerminatedCallback;
+import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 import org.mockup.common.protocol.ProtocolContext;
 import org.slf4j.Logger;
@@ -33,6 +36,20 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         this.certKeyVault = Common.ReadFromFile(KeyVaultProtocolContext.CERT_KV_FILE_PATH);
     }
 
+    public byte[] SendChallenge() {
+        try {
+            byte[] challenge = Crypto.GenerateRandomByteArray();
+            byte[] encryptedChallenge = Crypto.Encrypt(this.GetControllerCertificate(), challenge);
+            JSONObject contents = new JSONObject();
+            contents.put(MessageField.ENCRYPTED_CHALLENGE.Value(), Common.ByteArrayToString(encryptedChallenge));
+            this.SendMessageToController(MessageType.CHALLENGE_SUBMISSION, contents);
+            return challenge;
+        } catch (Exception e) {
+            logger.error("Failed to generate challenge");
+            return null;
+        }
+    }
+
     public Boolean CheckControllerCertificate(String certificateString) {
         /*
          * TODO: does it make sense to check that controller id matches the one
@@ -49,6 +66,10 @@ public class KeyVaultProtocolContext extends ProtocolContext {
 
     public void SaveControllerCertificate(String certificateString) {
         this.controllerCertificate = Common.StringToByteArray(certificateString);
+    }
+
+    public byte[] GetControllerCertificate() {
+        return this.controllerCertificate;
     }
 
     public void SendMessageToController(MessageType type, JSONObject contents) {

@@ -10,7 +10,7 @@ public class SendJoinRequestState extends ControllerProtocolState {
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
-        System.out.println("something");
+        System.out.println("Received challenge");
     }
 
     @Override

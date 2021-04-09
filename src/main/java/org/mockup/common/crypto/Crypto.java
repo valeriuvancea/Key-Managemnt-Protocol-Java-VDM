@@ -225,6 +225,7 @@ public class Crypto {
             try {
                 Crypto.RunCommand(String.format("openssl rand -out %s -hex %s", Crypto.TEMP_DATA_FILE, numberOfBytes));
                 String output = new String(Common.ReadFromFile(Crypto.TEMP_DATA_FILE));
+                output = output.trim();
                 byte[] bytes = Common.StringToByteArray(output);
                 return bytes;
             } finally {
@@ -268,6 +269,7 @@ public class Crypto {
                 Crypto.RunCommand(String.format("openssl rand -out %s -engine tpm2tss -hex %s", Crypto.TEMP_DATA_FILE,
                         numberOfBytes));
                 String output = new String(Common.ReadFromFile(Crypto.TEMP_DATA_FILE));
+                output = output.trim();
                 byte[] bytes = Common.StringToByteArray(output);
                 return bytes;
             } finally {

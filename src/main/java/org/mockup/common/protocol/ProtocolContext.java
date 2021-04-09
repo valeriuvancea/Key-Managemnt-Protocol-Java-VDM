@@ -100,22 +100,27 @@ public class ProtocolContext implements IReceiverCallback {
     }
 
     private void StopCurrentState() {
-        logger.debug("{} associated state {} stopped.", this.associatedIdString,
-                this.currentState.getClass().getName());
-        this.timeoutTask.cancel();
-        this.currentState = null;
+        synchronized (this) {
+            logger.debug("{} associated state {} stopped.", this.associatedIdString,
+                    this.currentState.getClass().getName());
+            this.timeoutTask.cancel();
+            this.currentState = null;
+        }
     }
 
     private void StartNewState(ProtocolState state) {
-        this.currentState = state;
-        logger.debug("{} associated state {} starting.", this.associatedIdString,
-                this.currentState.getClass().getName());
-        this.currentState.SetContext(this);
-        this.currentState.OnStart();
-        long timeoutS = this.currentState.GetTimeoutS();
-        if (timeoutS > 0) {
-            this.timeoutTask = new TimeoutTask();
-            this.timeoutTimer.schedule(this.timeoutTask, timeoutS * 1000);
+        synchronized (this) {
+            this.currentState = state;
+            logger.debug("{} associated state {} starting.", this.associatedIdString,
+                    this.currentState.getClass().getName());
+
+            this.currentState.SetContext(this);
+            this.currentState.OnStart();
+            long timeoutS = this.currentState.GetTimeoutS();
+            if (timeoutS > 0) {
+                this.timeoutTask = new TimeoutTask();
+                this.timeoutTimer.schedule(this.timeoutTask, timeoutS * 1000);
+            }
         }
     }
 
@@ -129,7 +134,7 @@ public class ProtocolContext implements IReceiverCallback {
         private final AtomicBoolean cancelledFlag;
 
         public TimeoutTask() {
-            this.cancelledFlag = new AtomicBoolean();
+            this.cancelledFlag = new AtomicBoolean(false);
         }
 
         @Override
