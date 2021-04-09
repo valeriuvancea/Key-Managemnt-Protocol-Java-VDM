@@ -73,7 +73,7 @@ public class Receiver implements Route, Runnable {
 
                 if (this.messages.isEmpty()) {
                     synchronized (this.messages) {
-                        this.messages.wait();
+                        this.messages.wait(3000);
                     }
                 }
 

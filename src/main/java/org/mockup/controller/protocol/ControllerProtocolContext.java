@@ -1,6 +1,8 @@
 package org.mockup.controller.protocol;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONObject;
 import org.apache.commons.codec.digest.Crypt;
@@ -33,8 +35,8 @@ public class ControllerProtocolContext extends ProtocolContext {
     private String challengeString;
     private String keyVaultIpAddress;
     private byte[] keyVaultCertificate;
-    private String effectiveCertificateString;
-    private Boolean hasJoined;
+    private AtomicReference<String> effectiveCertificateString;
+    private AtomicBoolean hasJoined;
 
     public ControllerProtocolContext(Sender sender, IContextTerminatedCallback terminatedCallback)
             throws IOException, InterruptedException {
@@ -48,16 +50,20 @@ public class ControllerProtocolContext extends ProtocolContext {
                     ControllerProtocolContext.CERT_M_FILE_PATH, ControllerProtocolContext.SK_M_FILE_PATH,
                     controllerKeys.getValue0(), this.associatedIdString);
             Common.WriteToFile(certControllerProtocolContext, ControllerProtocolContext.CERT_CT_FILE_PATH);
-
             Common.RemoveFile(ControllerProtocolContext.SK_M_FILE_PATH);
         }
 
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
-        this.hasJoined = false;
+        this.hasJoined = new AtomicBoolean(false);
+        this.effectiveCertificateString = new AtomicReference<>();
     }
 
     public boolean HasJoined() {
-        return this.hasJoined;
+        return this.hasJoined.get();
+    }
+
+    public String GetEffectiveCertificateString() {
+        return this.effectiveCertificateString.get();
     }
 
     public void SendSignatureAck() {
@@ -65,12 +71,12 @@ public class ControllerProtocolContext extends ProtocolContext {
     }
 
     public void SaveEffectiveKeys(String effectiveCertificateString) {
-        this.effectiveCertificateString = effectiveCertificateString;
+        this.effectiveCertificateString.set(effectiveCertificateString);
         Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
                 ControllerProtocolContext.PK_EFF_FILE_PATH);
         Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
                 ControllerProtocolContext.SK_EFF_FILE_PATH);
-        this.hasJoined = true;
+        this.hasJoined.set(true);
     }
 
     public Boolean CheckSigningReplySignature(String controllerIdString, String effectiveCertificateString,
