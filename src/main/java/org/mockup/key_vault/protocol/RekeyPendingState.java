@@ -5,7 +5,7 @@ import org.json.JSONObject;
 public class RekeyPendingState extends KeyVaultProtocolState {
 
     public RekeyPendingState() {
-        super(0);
+        super(10);
     }
 
     @Override
@@ -18,6 +18,6 @@ public class RekeyPendingState extends KeyVaultProtocolState {
 
     @Override
     public void OnTimeout() {
-        this.GetContext().Terminate();
+        this.GetContext().GoToNext(new ReceiveSigningRequestState());
     }
 }

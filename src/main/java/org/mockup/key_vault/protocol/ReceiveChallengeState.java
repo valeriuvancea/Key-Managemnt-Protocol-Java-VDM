@@ -12,7 +12,7 @@ public class ReceiveChallengeState extends KeyVaultProtocolState {
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
         String challenge = message.getString(MessageField.ENCRYPTED_CHALLENGE.Value());
-        this.GetContext().GoToNext(new ReceiveSigningRequest(challenge));
+        this.GetContext().GoToNext(new ReceiveSigningRequestState(challenge));
     }
 
     @Override

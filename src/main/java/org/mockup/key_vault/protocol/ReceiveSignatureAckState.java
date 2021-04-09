@@ -25,6 +25,10 @@ public class ReceiveSignatureAckState extends KeyVaultProtocolState {
 
     @Override
     public void OnTimeout() {
-        this.GetContext().Terminate();
+        if (this.GetContext().HasJoined()) {
+            this.GetContext().GoToNext(new ReceiveSigningRequestState());
+        } else {
+            this.GetContext().Terminate();
+        }
     }
 }

@@ -34,6 +34,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     private byte[] controllerCertificate;
     private byte[] controllerEffectiveCertificate;
     private String challengeString;
+    private Boolean hasJoined;
 
     public KeyVaultProtocolContext(String controllerAddress, byte[] associatedId, Sender sender,
             IContextTerminatedCallback terminatedCallback) throws IOException {
@@ -43,10 +44,20 @@ public class KeyVaultProtocolContext extends ProtocolContext {
                 .ByteArrayToString(Common.ReadFromFile(KeyVaultProtocolContext.CERT_KV_FILE_PATH));
         this.caCertificateString = Common
                 .ByteArrayToString(Common.ReadFromFile(KeyVaultProtocolContext.CERT_CA_FILE_PATH));
+        this.hasJoined = false;
+    }
+
+    public Boolean HasJoined() {
+        return this.hasJoined;
+    }
+
+    public void SendRekeyRequest() {
+        this.SendMessageToController(MessageType.RE_KEY_REQUEST);
     }
 
     public void SaveEffectiveCertificate(String effectiveCertificate) {
         this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
+        this.hasJoined = true;
     }
 
     public String GenerateAndSendEffectiveCertificate(String effectiveKeyString) {
@@ -101,10 +112,9 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         }
     }
 
-    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature,
-            Boolean first) {
+    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature) {
         byte[] certificate = this.controllerEffectiveCertificate;
-        if (first) {
+        if (!this.HasJoined()) {
             certificate = this.controllerCertificate;
         }
 

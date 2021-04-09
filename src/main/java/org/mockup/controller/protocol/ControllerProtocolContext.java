@@ -34,6 +34,7 @@ public class ControllerProtocolContext extends ProtocolContext {
     private String keyVaultIpAddress;
     private byte[] keyVaultCertificate;
     private String effectiveCertificateString;
+    private Boolean hasJoined;
 
     public ControllerProtocolContext(Sender sender, IContextTerminatedCallback terminatedCallback)
             throws IOException, InterruptedException {
@@ -52,6 +53,11 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
+        this.hasJoined = false;
+    }
+
+    public boolean HasJoined() {
+        return this.hasJoined;
     }
 
     public void SendSignatureAck() {
@@ -64,6 +70,7 @@ public class ControllerProtocolContext extends ProtocolContext {
                 ControllerProtocolContext.PK_EFF_FILE_PATH);
         Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
                 ControllerProtocolContext.SK_EFF_FILE_PATH);
+        this.hasJoined = true;
     }
 
     public Boolean CheckSigningReplySignature(String controllerIdString, String effectiveCertificateString,
@@ -80,7 +87,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    public void GenerateAndSendSigningRequest(Boolean first) {
+    public void GenerateAndSendSigningRequest() {
         String key = this.GenerateEffectivePendingKeys();
 
         if (key == null) {
@@ -88,7 +95,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         String signingKey = ControllerProtocolContext.SK_EFF_FILE_PATH;
-        if (first) {
+        if (!this.HasJoined()) {
             signingKey = ControllerProtocolContext.SK_CT_FILE_PATH;
         }
 

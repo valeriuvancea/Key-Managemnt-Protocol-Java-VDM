@@ -14,7 +14,7 @@ public class SendChallengeState extends ControllerProtocolState {
         String challengeAnswer = message.getString(MessageField.DECRYPTED_CHALLENGE.Value());
 
         if (this.GetContext().CheckChallengeAnswer(challengeAnswer)) {
-            this.GetContext().GoToNext(new SendSigningRequestState(true));
+            this.GetContext().GoToNext(new SendSigningRequestState());
         } else {
             this.GetContext().Terminate();
         }

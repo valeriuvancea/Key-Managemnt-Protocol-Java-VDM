@@ -5,16 +5,8 @@ import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 
 public class SendSigningRequestState extends ControllerProtocolState {
-    private Boolean first;
-
-    public SendSigningRequestState(Boolean first) {
-        super(9, MessageType.SIGNING_REPLY);
-        this.first = first;
-    }
-
     public SendSigningRequestState() {
         super(9, MessageType.SIGNING_REPLY);
-        this.first = false;
     }
 
     @Override
@@ -29,17 +21,25 @@ public class SendSigningRequestState extends ControllerProtocolState {
             this.GetContext().SaveEffectiveKeys(effectiveCertificateString);
             this.GetContext().GoToNext(new SendSignatureAckState());
         } else {
-            this.GetContext().Terminate();
+            this.HandleStateFailure();
         }
     }
 
     @Override
     public void OnStart() {
-        this.GetContext().GenerateAndSendSigningRequest(this.first);
+        this.GetContext().GenerateAndSendSigningRequest();
     }
 
     @Override
     public void OnTimeout() {
-        this.GetContext().Terminate();
+        this.HandleStateFailure();
+    }
+
+    private void HandleStateFailure() {
+        if (this.GetContext().HasJoined()) {
+            this.GetContext().GoToNext(new OperationalState());
+        } else {
+            this.GetContext().Terminate();
+        }
     }
 }

@@ -4,20 +4,17 @@ import org.json.JSONObject;
 import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 
-public class ReceiveSigningRequest extends KeyVaultProtocolState {
+public class ReceiveSigningRequestState extends KeyVaultProtocolState {
     private String challenge;
-    private Boolean first;
 
-    public ReceiveSigningRequest(String challenge) {
+    public ReceiveSigningRequestState(String challenge) {
         super(9, MessageType.SIGNING_REQUEST);
         this.challenge = challenge;
-        this.first = true;
     }
 
-    public ReceiveSigningRequest() {
+    public ReceiveSigningRequestState() {
         super(9, MessageType.SIGNING_REQUEST);
         this.challenge = null;
-        this.first = false;
     }
 
     @Override
@@ -26,7 +23,7 @@ public class ReceiveSigningRequest extends KeyVaultProtocolState {
         String key = message.getString(MessageField.PK_EFF.Value());
         String hash = message.getString(MessageField.HASH.Value());
 
-        if (this.GetContext().CheckSigningRequestSignature(controllerId, key, hash, this.first)) {
+        if (this.GetContext().CheckSigningRequestSignature(controllerId, key, hash)) {
             this.GetContext().GoToNext(new ReceiveSignatureAckState(key));
         } else {
             this.GetContext().Terminate();
@@ -35,15 +32,20 @@ public class ReceiveSigningRequest extends KeyVaultProtocolState {
 
     @Override
     public void OnStart() {
-        if (this.challenge != null) {
-            this.GetContext().DecryptAndSendChallengeAnswer(this.challenge);
+        if (this.GetContext().HasJoined()) {
+            this.GetContext().SendRekeyRequest();
         } else {
-            /* Send re-key request */
+            this.GetContext().DecryptAndSendChallengeAnswer(this.challenge);
         }
     }
 
     @Override
     public void OnTimeout() {
-        this.GetContext().Terminate();
+        if (this.GetContext().HasJoined()) {
+            /* Controller has joined the network, try again */
+            this.GetContext().GoToNext(this);
+        } else {
+            this.GetContext().Terminate();
+        }
     }
 }
