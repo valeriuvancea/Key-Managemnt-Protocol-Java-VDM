@@ -24,7 +24,7 @@ public abstract class ProtocolState {
         this.context = context;
     }
 
-    public abstract void OnMessageReceived(JSONObject message);
+    public abstract void OnMessageReceived(String senderIpAddress, JSONObject message);
 
     public abstract void OnStart();
 

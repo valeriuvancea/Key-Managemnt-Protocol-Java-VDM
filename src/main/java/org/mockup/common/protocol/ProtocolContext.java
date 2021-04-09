@@ -95,7 +95,7 @@ public class ProtocolContext implements IReceiverCallback {
             }
 
             /* Pass the message to the current state to be handled. */
-            this.currentState.OnMessageReceived(contents);
+            this.currentState.OnMessageReceived(senderIpAddress, contents);
         }
     }
 

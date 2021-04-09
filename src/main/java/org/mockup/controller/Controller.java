@@ -40,5 +40,6 @@ public class Controller implements IContextTerminatedCallback {
     @Override
     public void HandleContextTerminated(String associatedControllerIdString) {
         this.logger.info("Protocol has terminated. Restarting.");
+        this.context.Start(new FindKeyVaultState());
     }
 }

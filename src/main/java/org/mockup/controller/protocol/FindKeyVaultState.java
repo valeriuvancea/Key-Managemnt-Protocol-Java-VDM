@@ -10,8 +10,9 @@ public class FindKeyVaultState extends ControllerProtocolState {
     }
 
     @Override
-    public void OnMessageReceived(JSONObject message) {
-        System.out.println("something");
+    public void OnMessageReceived(String senderIpAddress, JSONObject message) {
+        this.GetContext().SetKeyVaultIpAddress(senderIpAddress);
+        this.GetContext().GoToNext(new SendJoinRequestState());
     }
 
     @Override

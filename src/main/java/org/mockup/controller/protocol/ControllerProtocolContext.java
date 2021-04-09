@@ -2,11 +2,14 @@ package org.mockup.controller.protocol;
 
 import java.io.IOException;
 
+import org.json.JSONObject;
 import org.javatuples.Pair;
 import org.mockup.common.Common;
 import org.mockup.common.communication.Sender;
 import org.mockup.common.crypto.Crypto;
 import org.mockup.common.protocol.IContextTerminatedCallback;
+import org.mockup.common.protocol.MessageField;
+import org.mockup.common.protocol.MessageType;
 import org.mockup.common.protocol.ProtocolContext;
 
 public class ControllerProtocolContext extends ProtocolContext {
@@ -18,6 +21,8 @@ public class ControllerProtocolContext extends ProtocolContext {
     public static final String CERT_CT_FILE_PATH = "store/cert_ct";
 
     private final byte[] certController;
+
+    private String keyVaultIpAddress;
 
     public ControllerProtocolContext(Sender sender, IContextTerminatedCallback terminatedCallback)
             throws IOException, InterruptedException {
@@ -38,7 +43,25 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.certController = Common.ReadFromFile(ControllerProtocolContext.CERT_CT_FILE_PATH);
     }
 
-    public byte[] GetCertController() {
-        return this.certController;
+    public void SendJoinRequest() {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.CERT_CT.Value(), this.GetCertControllerAsString());
+        this.SendMessageToKeyVault(MessageType.JOIN_REQUEST, contents);
+    }
+
+    public String GetCertControllerAsString() {
+        return Common.ByteArrayToString(this.certController);
+    }
+
+    public void SetKeyVaultIpAddress(String address) {
+        this.keyVaultIpAddress = address;
+    }
+
+    public void SendMessageToKeyVault(MessageType type, JSONObject contents) {
+        this.SendMessage(this.keyVaultIpAddress, type, contents);
+    }
+
+    public void SendMessageToKeyVault(MessageType type) {
+        this.SendMessageToKeyVault(type, new JSONObject());
     }
 }

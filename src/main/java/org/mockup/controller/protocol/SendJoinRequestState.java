@@ -1,22 +1,21 @@
-package org.mockup.key_vault.protocol;
+package org.mockup.controller.protocol;
 
 import org.json.JSONObject;
 import org.mockup.common.protocol.MessageType;
 
-public class ReceiveJoinRequestState extends KeyVaultProtocolState {
-
-    public ReceiveJoinRequestState() {
-        super(9, MessageType.JOIN_REQUEST);
+public class SendJoinRequestState extends ControllerProtocolState {
+    public SendJoinRequestState() {
+        super(9, MessageType.CHALLENGE_SUBMISSION);
     }
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
-        System.out.println("Key vault");
+        System.out.println("something");
     }
 
     @Override
     public void OnStart() {
-        this.GetContext().SendMessageToController(MessageType.KEY_VAULT_DISCOVERY_REPLY);
+        this.GetContext().SendJoinRequest();
     }
 
     @Override
