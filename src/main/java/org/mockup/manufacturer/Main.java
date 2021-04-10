@@ -3,7 +3,8 @@ package org.mockup.manufacturer;
 import java.io.IOException;
 
 import org.javatuples.Pair;
-import org.mockup.common.*;
+import org.mockup.common.Common;
+import org.mockup.common.crypto.Crypto;
 
 public class Main {
         public static void main(String[] args) throws IOException, InterruptedException {
@@ -16,9 +17,9 @@ public class Main {
                 String skManufacturerFilePath = "deployment_store/manufacturer/sk_m";
                 String certManufacturerFilePath = "deployment_store/manufacturer/cert_m";
                 /* Generate manufacturer objects */
-                Pair<byte[], byte[]> manufacturerKeys = Common.GenerateKeyPair(pkManufacturerFilePath,
+                Pair<byte[], byte[]> manufacturerKeys = Crypto.GenerateKeyPair(pkManufacturerFilePath,
                                 skManufacturerFilePath);
-                byte[] certManufacturer = Common.GenerateSelfSignedCertificate(skManufacturerFilePath,
+                byte[] certManufacturer = Crypto.GenerateSelfSignedCertificate(skManufacturerFilePath,
                                 certManufacturerFilePath, manufacturerNameString);
 
                 /* Generate key vault objects */
@@ -33,13 +34,13 @@ public class Main {
                 byte[] keyVaultId = "key_vault".getBytes();
                 String keyVaultIdString = Common.ByteArrayToString(keyVaultId);
 
-                Pair<byte[], byte[]> keyVaultKeys = Common.GenerateKeyPair(pkKeyVaultFilePath, skKeyVaultFilePath);
+                Pair<byte[], byte[]> keyVaultKeys = Crypto.GenerateKeyPair(pkKeyVaultFilePath, skKeyVaultFilePath);
                 Common.WriteToFile(certManufacturer, certManufacturerKeyVaultFilePath);
-                Common.GenerateKeyPair(pkCertificateAuthorityFilePath, skCertificateAuthorityFilePath);
-                byte[] certKeyVault = Common.GenerateCertificate(certManufacturerFilePath, skManufacturerFilePath,
+                Crypto.GenerateKeyPair(pkCertificateAuthorityFilePath, skCertificateAuthorityFilePath);
+                byte[] certKeyVault = Crypto.GenerateCertificate(certManufacturerFilePath, skManufacturerFilePath,
                                 keyVaultKeys.getValue0(), keyVaultIdString);
                 Common.WriteToFile(certKeyVault, certKeyVaultFilePath);
-                Common.GenerateSelfSignedCertificate(skCertificateAuthorityFilePath, certCertificateAuthorityFilePath,
+                Crypto.GenerateSelfSignedCertificate(skCertificateAuthorityFilePath, certCertificateAuthorityFilePath,
                                 keyVaultIdString);
 
                 /*

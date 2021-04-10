@@ -1,20 +1,21 @@
 package org.mockup.key_vault;
 
-import org.mockup.common.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 public class Main {
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
-
     public static void main(String[] args) throws IOException, InterruptedException {
         KeyVault keyVault = new KeyVault();
         keyVault.Start();
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                keyVault.Stop();
+            }
+        });
+
         while (true) {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
         }
     }
 }

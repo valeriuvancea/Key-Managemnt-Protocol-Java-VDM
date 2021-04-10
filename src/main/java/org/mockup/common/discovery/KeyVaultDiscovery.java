@@ -1,6 +1,6 @@
-package org.mockup.common;
+package org.mockup.common.discovery;
 
-import java.net.UnknownHostException;
+import org.mockup.common.protocol.MessageType;
 
 public class KeyVaultDiscovery extends Discovery {
     private static final MessageType discoveryMessageType = MessageType.KEY_VAULT_DISCOVERY_REQUEST;

@@ -1,12 +1,21 @@
 package org.mockup.controller;
 
 import java.io.IOException;
-import org.mockup.common.*;
 
 public class Main {
-
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("Controller running");
         Controller controller = new Controller();
+        controller.Start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                controller.Stop();
+            }
+        });
+
+        while (true) {
+            Thread.sleep(1000);
+        }
     }
 }

@@ -26,6 +26,24 @@
             "port": 8000,
             "preLaunchTask": "remote_debug_start",
             "postDebugTask": "remote_debug_stop_server"
+        },
+        {
+            "name": "controller_1_debug",
+            "type": "java",
+            "request": "attach",
+            "hostName": "${config:controller_1_address}",
+            "port": 8000,
+            "preLaunchTask": "controller_1_debug_start",
+            "postDebugTask": "controller_1_debug_stop_server"
+        }
+        {
+            "name": "controller_2_debug",
+            "type": "java",
+            "request": "attach",
+            "hostName": "${config:controller_2_address}",
+            "port": 8000,
+            "preLaunchTask": "controller_2_debug_start",
+            "postDebugTask": "controller_2_debug_stop_server"
         }
     ]
 }

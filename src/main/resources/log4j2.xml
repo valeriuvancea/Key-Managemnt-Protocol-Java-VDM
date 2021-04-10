@@ -6,9 +6,10 @@
         </Console>
     </Appenders>
     <Loggers>
+        <Logger name="org.eclipse.jetty" level="ERROR" />
+        <Logger name="spark" level="ERROR" />
         <Root level="debug">
             <AppenderRef ref="Console" />
-            <AppenderRef ref="MyFile"/>
         </Root>
     </Loggers>
 </Configuration>

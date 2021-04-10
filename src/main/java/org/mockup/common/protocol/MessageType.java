@@ -1,4 +1,7 @@
-package org.mockup.common;
+package org.mockup.common.protocol;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public enum MessageType {
     KEY_VAULT_DISCOVERY_REQUEST("BroadcastToSearchKeyVault"),
@@ -8,7 +11,15 @@ public enum MessageType {
     SIGNING_REPLY("SendNewEffectiveCertificate"), SIGNING_ACK("SendNewEffectiveCertificateAcknoledgement"),
     RE_KEY_REQUEST("SendReKeyRequest"), CONTROLLER_DISCOVERY_REQUEST("BroadcastToSearchControllers"),
     CONTROLLER_DISCOVERY_REPLY("ControllerSearchBroadcastAcknowledgement"),
-    CONTROLLER_CERTIFICATE_UPDATE("ControllerCertificateUpdate"), DUMMY_MESSAGE("DummyMessage");
+    CONTROLLER_CERTIFICATE_UPDATE("ControllerCertificateUpdate"), DUMMY_MESSAGE("DummyMessage"), UNKNOWN("Unknown");
+
+    private static final Map<String, MessageType> BY_VALUE = new HashMap<String, MessageType>();
+
+    static {
+        for (MessageType e : values()) {
+            BY_VALUE.put(e.Value(), e);
+        }
+    }
 
     private final String text;
 
@@ -16,8 +27,15 @@ public enum MessageType {
         this.text = text;
     }
 
-    @Override
-    public String toString() {
+    public static MessageType ByValue(String value) {
+        if (BY_VALUE.containsKey(value)) {
+            return BY_VALUE.get(value);
+        }
+
+        return MessageType.UNKNOWN;
+    }
+
+    public String Value() {
         return this.text;
     }
 }

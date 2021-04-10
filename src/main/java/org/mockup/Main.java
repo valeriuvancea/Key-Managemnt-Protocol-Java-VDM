@@ -1,10 +1,7 @@
 package org.mockup;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 
 import org.json.JSONObject;
 import org.mockup.common.*;
@@ -20,7 +17,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, SocketException, UnknownHostException {
         while (true) {
             Thread.sleep(3000);
-            KeyVaultDiscovery.BroadcastDiscoveryRequest("DUMMY");
+            logger.info("Sketchbook running");
         }
     }
 }
