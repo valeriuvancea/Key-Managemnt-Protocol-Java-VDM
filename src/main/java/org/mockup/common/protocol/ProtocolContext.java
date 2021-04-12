@@ -103,8 +103,10 @@ public class ProtocolContext implements IReceiverCallback {
         synchronized (this) {
             logger.debug("{} associated state {} stopped.", this.associatedIdString,
                     this.currentState.getClass().getName());
-            this.timeoutTask.cancel();
             this.currentState = null;
+            if (this.timeoutTask != null) {
+                this.timeoutTask.cancel();
+            }
         }
     }
 
