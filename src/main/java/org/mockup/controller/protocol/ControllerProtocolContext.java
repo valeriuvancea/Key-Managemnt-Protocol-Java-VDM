@@ -26,6 +26,7 @@ public class ControllerProtocolContext extends ProtocolContext {
     public static final String PK_EFF_PENDING_FILE_PATH = "store/pk_eff_pending";
     public static final String SK_EFF_FILE_PATH = "store/sk_eff";
     public static final String PK_EFF_FILE_PATH = "store/pk_eff";
+    public static final String CERT_EFF_FILE_PATH = "store/cert_eff";
     public static final String CERT_CT_FILE_PATH = "store/cert_ct";
 
     private final byte[] certController;
@@ -136,12 +137,18 @@ public class ControllerProtocolContext extends ProtocolContext {
     }
 
     public void SaveEffectiveKeys(String effectiveCertificateString) {
-        this.effectiveCertificateString.set(effectiveCertificateString);
-        Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
-                ControllerProtocolContext.PK_EFF_FILE_PATH);
-        Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
-                ControllerProtocolContext.SK_EFF_FILE_PATH);
-        this.hasJoined.set(true);
+        try {
+            this.effectiveCertificateString.set(effectiveCertificateString);
+            byte[] effectiveCertificate = Common.StringToByteArray(effectiveCertificateString);
+            Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
+                    ControllerProtocolContext.PK_EFF_FILE_PATH);
+            Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
+                    ControllerProtocolContext.SK_EFF_FILE_PATH);
+            Common.WriteToFile(effectiveCertificate, ControllerProtocolContext.CERT_EFF_FILE_PATH);
+            this.hasJoined.set(true);
+        } catch (Exception e) {
+            logger.error("Failed to save new effective keys and certificate.");
+        }
     }
 
     public Boolean CheckSigningReplySignature(String controllerIdString, String effectiveCertificateString,
