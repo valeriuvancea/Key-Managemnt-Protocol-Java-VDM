@@ -1,6 +1,7 @@
 package org.mockup.controller.protocol;
 
 import java.io.IOException;
+import java.util.ResourceBundle.Control;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -159,7 +160,13 @@ public class ControllerProtocolContext extends ProtocolContext {
     }
 
     public void GenerateAndSendSigningRequest() {
-        String key = this.GenerateEffectivePendingKeys();
+        String key = null;
+
+        if (this.HasJoined()) {
+            key = this.ReuseEffectivePendingKeys();
+        } else {
+            key = this.GenerateEffectivePendingKeys();
+        }
 
         if (key == null) {
             return;
@@ -196,6 +203,25 @@ public class ControllerProtocolContext extends ProtocolContext {
             logger.error("Failed to generate signature for signing request TPM.");
             return null;
         }
+    }
+
+    public String ReuseEffectivePendingKeys() {
+        /**
+         * Reads current effective keys and reuses them for as new pending effective
+         * keys. This will cause the controller to simply always use the same effective
+         * keys.
+         */
+        try {
+            byte[] pk = Common.ReadFromFile(ControllerProtocolContext.PK_EFF_FILE_PATH);
+            byte[] sk = Common.ReadFromFile(ControllerProtocolContext.SK_EFF_FILE_PATH);
+
+            Common.WriteToFile(pk, ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH);
+            Common.WriteToFile(sk, ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH);
+            return Common.ByteArrayToString(pk);
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
     public String GenerateEffectivePendingKeys() {
