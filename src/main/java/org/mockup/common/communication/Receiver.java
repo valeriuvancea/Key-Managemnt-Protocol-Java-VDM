@@ -1,6 +1,6 @@
 package org.mockup.common.communication;
 
-import static spark.Spark.post;
+import static spark.Spark.get;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,7 +34,7 @@ public class Receiver implements Route, Runnable {
         this.run.set(true);
         this.processThread = new Thread(this);
         this.processThread.start();
-        post("/message", "application/json", this);
+        get("/message", "application/json", this);
     }
 
     public void Stop() {

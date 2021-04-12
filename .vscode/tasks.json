@@ -4,7 +4,11 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "mvn package"
+			"command": "mvn package",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		},
 		{
 			"label": "remote_debug_upload",
