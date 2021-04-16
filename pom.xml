@@ -71,7 +71,16 @@
       <artifactId>json</artifactId>
       <version>20210307</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>1.8.4</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
+
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -125,6 +134,11 @@
               <artifactId>vdm-annotations</artifactId>
             </aspectLibrary>
           </aspectLibraries>
+          <showWeaveInfo>true</showWeaveInfo>
+          <source>1.8</source>
+          <target>1.8</target>
+          <complianceLevel>1.8</complianceLevel>
+          <proc>none</proc>
         </configuration>
         <executions>
           <execution>

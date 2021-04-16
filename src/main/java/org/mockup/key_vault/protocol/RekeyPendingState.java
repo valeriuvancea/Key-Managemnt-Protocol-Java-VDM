@@ -5,7 +5,7 @@ import org.json.JSONObject;
 public class RekeyPendingState extends KeyVaultProtocolState {
 
     public RekeyPendingState() {
-        super(3600);
+        super(86400);
     }
 
     @Override

@@ -30,11 +30,19 @@ public class Controller implements IContextTerminatedCallback, IDiscoveryCallbac
         this.discovery = new ControllerDiscovery(this);
     }
 
-    public void Start() {
+    public void Start() throws InterruptedException {
         this.logger.info("Starting controller.");
-        this.context.Start(new FindKeyVaultState());
         this.receiver.Start();
         this.discovery.Start();
+
+        /*
+         * Give some time for receiver and discovery to spin up, before starting the
+         * state machine.
+         */
+        Thread.sleep(3000);
+
+        this.context.Start(new FindKeyVaultState());
+
     }
 
     public void Stop() {
