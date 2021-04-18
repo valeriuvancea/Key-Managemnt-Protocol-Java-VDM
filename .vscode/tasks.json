@@ -73,6 +73,7 @@
 			"dependsOn": [
 				"deploy_controller_1_store",
 				"deploy_controller_1_jar",
+				"deploy_controller_1_vdm"
 			],
 			"dependsOrder": "sequence"
 		},
@@ -85,6 +86,11 @@
 			"label": "deploy_controller_1_jar",
 			"type": "shell",
 			"command": "scp -i ${config:identity_file} ${workspaceFolder}/target/${config:remote_debug_jar} pi@${config:controller_1_address}:${config:pi_deployment_folder}",
+		},
+		{
+			"label": "deploy_controller_1_vdm",
+			"type": "shell",
+			"command": "scp -i ${config:identity_file} ${workspaceFolder}/generatedVDMModel/* pi@${config:controller_1_address}:${config:pi_deployment_folder}/generatedVDMModel",
 		},
 		{
 			"label": "deploy_controller_2",
@@ -156,7 +162,7 @@
 			"label": "controller_1_debug_start_server",
 			"isBackground": true,
 			"type": "shell",
-			"command": "ssh pi@${config:controller_1_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:controller_1_address}:8000 -cp ${config:remote_debug_jar} ${config:controller_main}\"",
+			"command": "ssh pi@${config:controller_1_address} -i ${config:identity_file} \"cd ${config:pi_deployment_folder}; java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${config:controller_1_address}:8000 -DmainClass=org.mockup.controller.Main -cp ${config:remote_debug_jar} org.overture.interpreter.VDMJ -vdmpp -i -remote org.vdm.overture.RemoteController ${config:pi_deployment_folder}/generatedVDMModel\"",
 			"problemMatcher": [
 				{
 					"pattern": [
@@ -201,6 +207,7 @@
 			"dependsOn": [
 				"build",
 				"deploy_controller_1_jar",
+				"deploy_controller_1_vdm",
 				"controller_1_debug_start_server"
 			],
 			"dependsOrder": "sequence"

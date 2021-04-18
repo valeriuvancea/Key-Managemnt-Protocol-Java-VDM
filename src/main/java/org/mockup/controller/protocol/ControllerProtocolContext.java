@@ -15,6 +15,7 @@ import org.mockup.common.protocol.MessageType;
 import org.mockup.common.protocol.ProtocolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vdm.annotations.VDMOperation;
 
 public class ControllerProtocolContext extends ProtocolContext {
     public static final String CERT_M_FILE_PATH = "store/cert_m";
@@ -253,6 +254,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
+    @VDMOperation(postCondition = "len RESULT=128")
     public byte[] GenerateChallenge() {
         try {
             return Crypto.GenerateRandomByteArrayTPM();
@@ -262,6 +264,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
+    @VDMOperation(postCondition = "RESULT=true")
     public Boolean CheckKeyVaultCertificate(String certificateString) {
         byte[] certificate = Common.StringToByteArray(certificateString);
 

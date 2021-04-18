@@ -1,0 +1,28 @@
+class ControllerProtocolContext
+types
+-- TODO Define types here
+values
+-- TODO Define values here
+instance variables
+	javaObject: generated_vdm_VDMControllerProtocolContext := new generated_vdm_VDMControllerProtocolContext();
+operations
+public setJavaObject: (seq of char) ==> ()
+setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
+
+public GENERATED_GenerateChallenge:() ==> (seq of int)
+GENERATED_GenerateChallenge() == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.GenerateChallenge();
+);
+
+public GENERATED_CheckKeyVaultCertificate:(seq of char) ==> (bool)
+GENERATED_CheckKeyVaultCertificate(certificateString) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.CheckKeyVaultCertificate(certificateString);
+);
+
+functions
+-- TODO Define functions here
+traces
+-- TODO Define Combinatorial Test Traces here
+end ControllerProtocolContext
