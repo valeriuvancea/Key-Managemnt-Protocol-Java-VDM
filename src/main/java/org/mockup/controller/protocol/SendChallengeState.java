@@ -1,6 +1,9 @@
 package org.mockup.controller.protocol;
 
+import java.rmi.activation.ActivationGroupDesc.CommandEnvironment;
+
 import org.json.JSONObject;
+import org.mockup.common.Common;
 import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 
@@ -11,7 +14,8 @@ public class SendChallengeState extends ControllerProtocolState {
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
-        String challengeAnswer = message.getString(MessageField.DECRYPTED_CHALLENGE.Value());
+        String challengeAnswerString = message.getString(MessageField.DECRYPTED_CHALLENGE.Value());
+        byte[] challengeAnswer = Common.StringToByteArray(challengeAnswerString);
 
         if (this.GetContext().CheckChallengeAnswer(challengeAnswer)) {
             this.GetContext().GoToNext(new SendSigningRequestState());

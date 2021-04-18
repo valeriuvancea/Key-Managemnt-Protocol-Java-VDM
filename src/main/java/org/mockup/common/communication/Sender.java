@@ -20,12 +20,12 @@ import org.apache.http.client.utils.URIBuilder;
 public class Sender {
     private final Logger logger = LoggerFactory.getLogger(Sender.class);
 
-    public void SendMessage(String destinationIpAddress, JSONObject contents) {
+    public void SendMessage(String destinationIpAddress, String contents) {
         HttpGet request = new HttpGet(String.format("http://%s:4567/message", destinationIpAddress));
 
         URI uri = null;
         try {
-            uri = new URIBuilder(request.getURI()).addParameter("contents", contents.toString()).build();
+            uri = new URIBuilder(request.getURI()).addParameter("contents", contents).build();
         } catch (URISyntaxException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -48,4 +48,9 @@ public class Sender {
             }
         }
     }
+
+    public void SendMessage(String destinationIpAddress, JSONObject contents) {
+        this.SendMessage(destinationIpAddress, contents.toString());
+    }
+
 }
