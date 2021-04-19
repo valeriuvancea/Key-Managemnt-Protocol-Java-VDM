@@ -95,6 +95,12 @@ GENERATED_SendEffectiveCertificateToOtherController(effectiveCertificateString) 
 )
 pre effectiveCertificateString = effectiveCertificates(len effectiveCertificates);
 
+public GENERATED_SendMessageToKeyVault:(seq of char) * (seq of char) ==> ()
+GENERATED_SendMessageToKeyVault(type,contents) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.SendMessageToKeyVault(type,contents);
+);
+
 functions
 -- TODO Define functions here
 traces

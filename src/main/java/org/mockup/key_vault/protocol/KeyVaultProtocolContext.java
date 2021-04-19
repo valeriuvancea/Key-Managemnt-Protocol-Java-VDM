@@ -15,6 +15,7 @@ import org.mockup.common.protocol.MessageType;
 import org.mockup.common.protocol.ProtocolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vdm.annotations.VDMOperation;
 
 public class KeyVaultProtocolContext extends ProtocolContext {
     public static final String CERT_CA_FILE_PATH = "store/cert_ca";
@@ -125,6 +126,15 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     }
 
     /* To annotate: */
+    @VDMOperation(postCondition = "len RESULT = 128")
+    public byte[] GenerateChallenge() {
+        try {
+            return Crypto.GenerateRandomByteArray();
+        } catch (Exception e) {
+            logger.error("Failed to generate challenge.");
+            return null;
+        }
+    }
 
     public void SendMessageToController(String type, String contents) {
         JSONObject message = new JSONObject(contents);
@@ -207,15 +217,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             return Crypto.Encrypt(this.GetControllerCertificate(), challenge);
         } catch (Exception e) {
             logger.error("Failed to encrypt challenge.");
-            return null;
-        }
-    }
-
-    public byte[] GenerateChallenge() {
-        try {
-            return Crypto.GenerateRandomByteArray();
-        } catch (Exception e) {
-            logger.error("Failed to generate challenge.");
             return null;
         }
     }

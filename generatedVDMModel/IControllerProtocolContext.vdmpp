@@ -44,6 +44,9 @@ SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectiveP
 public SendEffectiveCertificateToOtherController:(seq of char) ==> ()
 SendEffectiveCertificateToOtherController(effectiveCertificateString) == is not yet specified;
 
+public SendMessageToKeyVault:(seq of char) * (seq of char) ==> ()
+SendMessageToKeyVault(type,contents) == is not yet specified;
+
 functions
 -- TODO Define functions here
 traces

@@ -1,0 +1,20 @@
+class generated_vdm_VDMKeyVaultProtocolContext
+types
+-- TODO Define types here
+values
+-- TODO Define values here
+instance variables
+-- TODO Define instance variables here
+operations
+public setJavaObject: (seq of char) ==> ()
+setJavaObject(vdmObjectName) == is not yet specified;
+
+pure public GenerateChallenge:() ==> (seq of int)
+GenerateChallenge() == is not yet specified
+post len RESULT = 128;
+
+functions
+-- TODO Define functions here
+traces
+-- TODO Define Combinatorial Test Traces here
+end generated_vdm_VDMKeyVaultProtocolContext

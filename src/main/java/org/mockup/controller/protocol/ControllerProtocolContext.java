@@ -369,7 +369,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToOtherController(MessageType.CONTROLLER_CERTIFICATE_UPDATE, contents);
     }
 
-    /* @VDMOperation - for some reason crashes */
+    @VDMOperation
     public void SendMessageToKeyVault(String type, String contents) {
         JSONObject message = new JSONObject(contents);
         message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
