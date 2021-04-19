@@ -1,6 +1,7 @@
 package org.mockup.controller.protocol;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,7 +34,7 @@ public class ControllerProtocolContext extends ProtocolContext {
     private final byte[] certController;
     private final Logger logger = LoggerFactory.getLogger(ControllerProtocolContext.class);
 
-    private String challengeString;
+    private byte[] issuesChallenge;
     private String keyVaultIpAddress;
     private byte[] keyVaultCertificate;
     private byte[] otherControllerEffectiveCertificate;
@@ -186,7 +187,7 @@ public class ControllerProtocolContext extends ProtocolContext {
             return;
         }
 
-        this.challengeString = Common.ByteArrayToString(challenge);
+        this.issuesChallenge = challenge;
         byte[] encryptedChallenge = this.EncryptChallenge(challenge);
 
         if (encryptedChallenge == null) {
@@ -269,7 +270,7 @@ public class ControllerProtocolContext extends ProtocolContext {
      * 1) Make sure encrypted challenge looks different from not encrypted. 2) Make
      * sure challenge being encrypted is the same as stashed one.
      */
-    @VDMOperation()
+    @VDMOperation(postCondition = "RESULT <> challenge")
     public byte[] EncryptChallenge(byte[] challenge) {
         try {
             return Crypto.Encrypt(this.GetKeyVaultCertificate(), challenge);
@@ -283,8 +284,9 @@ public class ControllerProtocolContext extends ProtocolContext {
      * 1) Make sure the function yields True. 2) Make sure the answer matches the
      * stashed challenge.
      */
-    public Boolean CheckChallengeAnswer(String answer) {
-        return answer.equals(this.challengeString);
+    @VDMOperation(postCondition = "RESULT = true")
+    public Boolean CheckChallengeAnswer(byte[] challengeAnswer) {
+        return Arrays.equals(challengeAnswer, this.issuesChallenge);
     }
 
     public Boolean CheckKeyVaultCertificate(String certificateString) {

@@ -14,7 +14,12 @@ GenerateChallenge() == is not yet specified
 post len RESULT=128;
 
 pure public EncryptChallenge:(seq of int) ==> (seq of int)
-EncryptChallenge(challenge) == is not yet specified;
+EncryptChallenge(challenge) == is not yet specified
+post RESULT <> challenge;
+
+pure public CheckChallengeAnswer:(seq of int) ==> (bool)
+CheckChallengeAnswer(challengeAnswer) == is not yet specified
+post RESULT = true;
 
 functions
 -- TODO Define functions here

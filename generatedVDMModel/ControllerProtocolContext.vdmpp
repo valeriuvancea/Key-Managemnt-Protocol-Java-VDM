@@ -21,7 +21,13 @@ public GENERATED_EncryptChallenge:(seq of int) ==> (seq of int)
 GENERATED_EncryptChallenge(challenge) == (
 	--Extra VDM expressions can be added to this operation
 	javaObject.EncryptChallenge(challenge);
-);
+) pre generatedChallenge = challenge;
+
+public GENERATED_CheckChallengeAnswer:(seq of int) ==> (bool)
+GENERATED_CheckChallengeAnswer(challengeAnswer) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.CheckChallengeAnswer(challengeAnswer);
+) pre challengeAnswer = generatedChallenge;
 
 functions
 -- TODO Define functions here
