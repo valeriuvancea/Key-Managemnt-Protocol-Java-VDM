@@ -71,9 +71,14 @@
 ## Keys/Encryption/Decryption/Signing/Verification
 Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 
-# Known issues
-* Controllers do not verify the key vault id to be the same as the one in the certificate presented by the key vault
-* Controllers do not verify the received cert_eff from the key vault
+# VDMAnnotations
 
-# Temp
-http://:8080/message?contents={"encrypted_data": "hello world", "controller_id": "controller_1", "type": "DummyMessage"}
+## Controller
+
+1. Verify generated challenge length.
+2. Verify that the encrypted challenge is different from the original one. 
+3. Verify that the challenge being encrypted is the same as the generated challenge.
+4. Verify that the checked challenge matches the generated challenge.
+5. Verify that the check of the challenge yields true.
+6. Verify that the key vault certificate verification yields true.
+7. 

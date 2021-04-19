@@ -153,7 +153,8 @@ public class ControllerProtocolContext extends ProtocolContext {
     }
 
     public void GenerateAndSendSigningRequest() {
-        String key = this.GenerateEffectivePendingKeys();
+        this.GenerateEffectivePendingKeys();
+        String key = this.GetEffectivePendingPublicKey();
 
         if (key == null) {
             return;
@@ -252,10 +253,15 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToKeyVault(type.Value(), new JSONObject().toString());
     }
 
-    /**
-     * 1) Verify generated challenge length. 2) Stash the challenge value in VDM
-     * before a return.
-     */
+    public void GenerateEffectivePendingKeys() {
+        try {
+            Crypto.GenerateKeyPairTPM(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
+                    ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH);
+        } catch (Exception e) {
+            logger.error("Failed to generate controller effective pending keys TPM");
+        }
+    }
+
     @VDMOperation(postCondition = "len RESULT=128")
     public byte[] GenerateChallenge() {
         try {
@@ -266,10 +272,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    /*
-     * 1) Make sure encrypted challenge looks different from not encrypted. 2) Make
-     * sure challenge being encrypted is the same as stashed one.
-     */
     @VDMOperation(postCondition = "RESULT <> challenge")
     public byte[] EncryptChallenge(byte[] challenge) {
         try {
@@ -289,6 +291,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         return Arrays.equals(challengeAnswer, this.issuesChallenge);
     }
 
+    @VDMOperation(postCondition = "RESULT = true")
     public Boolean CheckKeyVaultCertificate(String certificateString) {
         byte[] certificate = Common.StringToByteArray(certificateString);
 
@@ -300,16 +303,34 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    /*
-     * 1) Stash generated keys. Make sure each time keys are different.
-     */
-    public String GenerateEffectivePendingKeys() {
+    @VDMOperation(postCondition = "RESULT <> encryptedChallenge")
+    public String DecryptChallenge(String encryptedChallenge) {
         try {
-            Pair<byte[], byte[]> keys = Crypto.GenerateKeyPairTPM(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
-                    ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH);
-            return Common.ByteArrayToString(keys.getValue0());
+            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
+            byte[] text = Crypto.DecryptTPM(ControllerProtocolContext.SK_CT_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
         } catch (Exception e) {
-            logger.error("Failed to generate controller effective pending keys TPM");
+            logger.error("Failed to decrypt challenge TPM");
+            return null;
+        }
+    }
+
+    @VDMOperation
+    public String GetEffectivePendingPublicKey() {
+        try {
+            return Common.ByteArrayToString(Common.ReadFromFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH));
+        } catch (IOException e) {
+            logger.error("Failed to retrieve effective pending public key.");
+            return null;
+        }
+    }
+
+    @VDMOperation
+    public String GetEffectivePendingPrivateKey() {
+        try {
+            return Common.ByteArrayToString(Common.ReadFromFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH));
+        } catch (IOException e) {
+            logger.error("Failed to retrieve effective pending public key.");
             return null;
         }
     }
@@ -343,17 +364,6 @@ public class ControllerProtocolContext extends ProtocolContext {
             return Common.ByteArrayToString(sign);
         } catch (Exception e) {
             logger.error("Failed to generate signature for signing request TPM.");
-            return null;
-        }
-    }
-
-    public String DecryptChallenge(String encryptedChallenge) {
-        try {
-            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
-            byte[] text = Crypto.DecryptTPM(ControllerProtocolContext.SK_CT_FILE_PATH, cipher);
-            return Common.ByteArrayToString(text);
-        } catch (Exception e) {
-            logger.error("Failed to decrypt challenge TPM");
             return null;
         }
     }

@@ -5,7 +5,10 @@ values
 -- TODO Define values here
 instance variables
 	javaObject: generated_vdm_VDMControllerProtocolContext := new generated_vdm_VDMControllerProtocolContext();
+
 	generatedChallenge: seq of int := [];
+	pendingPublicKey: seq of char := [];
+	pendingPrivateKey: seq of char := [];
 operations
 public setJavaObject: (seq of char) ==> ()
 setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
@@ -28,6 +31,32 @@ GENERATED_CheckChallengeAnswer(challengeAnswer) == (
 	--Extra VDM expressions can be added to this operation
 	javaObject.CheckChallengeAnswer(challengeAnswer);
 ) pre challengeAnswer = generatedChallenge;
+
+public GENERATED_CheckKeyVaultCertificate:(seq of char) ==> (bool)
+GENERATED_CheckKeyVaultCertificate(certificateString) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.CheckKeyVaultCertificate(certificateString);
+);
+
+public GENERATED_DecryptChallenge:(seq of char) ==> (seq of char)
+GENERATED_DecryptChallenge(encryptedChallenge) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.DecryptChallenge(encryptedChallenge);
+);
+
+public GENERATED_GetEffectivePendingPublicKey:() ==> (seq of char)
+GENERATED_GetEffectivePendingPublicKey() == (
+	--Extra VDM expressions can be added to this operation
+	pendingPublicKey := javaObject.GetEffectivePendingPublicKey();
+	return pendingPublicKey;
+);
+
+public GENERATED_GetEffectivePendingPrivateKey:() ==> (seq of char)
+GENERATED_GetEffectivePendingPrivateKey() == (
+	--Extra VDM expressions can be added to this operation
+	pendingPrivateKey := javaObject.GetEffectivePendingPrivateKey();
+	return pendingPrivateKey;
+);
 
 functions
 -- TODO Define functions here
