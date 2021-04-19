@@ -52,12 +52,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     }
 
     public void SendRekeyRequest() {
-        this.SendMessageToController(MessageType.RE_KEY_REQUEST);
-    }
-
-    public void SaveEffectiveCertificate(String effectiveCertificate) {
-        this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
-        this.hasJoined = true;
+        this.SendMessageToController(MessageType.RE_KEY_REQUEST.Value(), new JSONObject().toString());
     }
 
     public String GenerateAndSendEffectiveCertificate(String effectiveKeyString) {
@@ -84,55 +79,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
         contents.put(MessageField.CERT_CA.Value(), caCertificateString);
         contents.put(MessageField.HASH.Value(), hash);
-        this.SendMessageToController(MessageType.SIGNING_REPLY, contents);
-    }
-
-    public String GetEffectiveCertificateSignature(String controllerIdString, String effectiveCertificateString,
-            String caCertificateString) {
-        String dataString = controllerIdString.concat(effectiveCertificateString).concat(caCertificateString);
-        byte[] data = Common.StringToByteArray(dataString);
-        try {
-            byte[] signature = Crypto.Sign(KeyVaultProtocolContext.SK_KV_FILE_PATH, data);
-            return Common.ByteArrayToString(signature);
-        } catch (Exception e) {
-            logger.error("Failed to generate signature for signing reply.");
-            return null;
-        }
-    }
-
-    public String GenerateEffectiveCertificate(String effectiveKeyString) {
-        byte[] effectiveKey = Common.StringToByteArray(effectiveKeyString);
-        try {
-            byte[] certificate = Crypto.GenerateCertificate(KeyVaultProtocolContext.CERT_CA_FILE_PATH,
-                    KeyVaultProtocolContext.SK_CA_FILE_PATH, effectiveKey, this.GetAssociateIdString());
-            return Common.ByteArrayToString(certificate);
-        } catch (Exception e) {
-            logger.error("Failed to generate controller effective key certificate");
-            return null;
-        }
-    }
-
-    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature) {
-        byte[] certificate = this.controllerEffectiveCertificate;
-        if (!this.HasJoined()) {
-            certificate = this.controllerCertificate;
-        }
-
-        return this.CheckSigningRequestSignature(controllerIdString, keyString, certificate, expectedSignature);
-    }
-
-    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, byte[] signingCertificate,
-            String expectedSignature) {
-        String dataString = controllerIdString.concat(keyString);
-        byte[] data = Common.StringToByteArray(dataString);
-        byte[] signature = Common.StringToByteArray(expectedSignature);
-
-        try {
-            return Crypto.IsSignatureValid(signingCertificate, data, signature);
-        } catch (Exception e) {
-            logger.error("Failed to verify signing request signature.");
-            return false;
-        }
+        this.SendMessageToController(MessageType.SIGNING_REPLY.Value(), contents.toString());
     }
 
     public void DecryptAndSendChallengeAnswer(String encryptedChallenge) {
@@ -143,31 +90,10 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         }
     }
 
-    public void SendDecryptedChallenge(String decryptedChallenge) {
-        JSONObject contents = new JSONObject();
-        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
-        this.SendMessageToController(MessageType.CHALLENGE_ANSWER, contents);
-    }
-
-    public String DecryptChallenge(String encryptedChallenge) {
-        try {
-            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
-            byte[] text = Crypto.Decrypt(KeyVaultProtocolContext.SK_KV_FILE_PATH, cipher);
-            return Common.ByteArrayToString(text);
-        } catch (Exception e) {
-            logger.error("Failed to decrypt challenge");
-            return null;
-        }
-    }
-
-    public Boolean CheckChallengeAnswer(String answer) {
-        return answer.equals(this.challengeString);
-    }
-
     public void SendKeyVaultCertificate() {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.CERT_KV.Value(), this.keyVaultCertificateString);
-        this.SendMessageToController(MessageType.KEY_VAULT_CERTIFICATE, contents);
+        this.SendMessageToController(MessageType.KEY_VAULT_CERTIFICATE.Value(), contents.toString());
     }
 
     public void GenerateStashEncryptAndSendChallenge() {
@@ -191,7 +117,89 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         String encryptedChallengeString = Common.ByteArrayToString(encryptedChallenge);
         JSONObject contents = new JSONObject();
         contents.put(MessageField.ENCRYPTED_CHALLENGE.Value(), encryptedChallengeString);
-        this.SendMessageToController(MessageType.CHALLENGE_SUBMISSION, contents);
+        this.SendMessageToController(MessageType.CHALLENGE_SUBMISSION.Value(), contents.toString());
+    }
+
+    public byte[] GetControllerCertificate() {
+        return this.controllerCertificate;
+    }
+
+    /* To annotate: */
+
+    public void SendMessageToController(String type, String contents) {
+        JSONObject message = new JSONObject(contents);
+        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
+        message.put(MessageField.TYPE.Value(), type);
+        this.sender.SendMessage(this.controllerAddress, message);
+    }
+
+    public void SaveEffectiveCertificate(String effectiveCertificate) {
+        this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
+        this.hasJoined = true;
+    }
+
+    public String GenerateEffectiveCertificate(String effectiveKeyString) {
+        byte[] effectiveKey = Common.StringToByteArray(effectiveKeyString);
+        try {
+            byte[] certificate = Crypto.GenerateCertificate(KeyVaultProtocolContext.CERT_CA_FILE_PATH,
+                    KeyVaultProtocolContext.SK_CA_FILE_PATH, effectiveKey, this.GetAssociateIdString());
+            return Common.ByteArrayToString(certificate);
+        } catch (Exception e) {
+            logger.error("Failed to generate controller effective key certificate");
+            return null;
+        }
+    }
+
+    public String GetEffectiveCertificateSignature(String controllerIdString, String effectiveCertificateString,
+            String caCertificateString) {
+        String dataString = controllerIdString.concat(effectiveCertificateString).concat(caCertificateString);
+        byte[] data = Common.StringToByteArray(dataString);
+        try {
+            byte[] signature = Crypto.Sign(KeyVaultProtocolContext.SK_KV_FILE_PATH, data);
+            return Common.ByteArrayToString(signature);
+        } catch (Exception e) {
+            logger.error("Failed to generate signature for signing reply.");
+            return null;
+        }
+    }
+
+    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature) {
+        byte[] certificate = this.controllerEffectiveCertificate;
+        if (!this.HasJoined()) {
+            certificate = this.controllerCertificate;
+        }
+
+        String dataString = controllerIdString.concat(keyString);
+        byte[] data = Common.StringToByteArray(dataString);
+        byte[] signature = Common.StringToByteArray(expectedSignature);
+
+        try {
+            return Crypto.IsSignatureValid(certificate, data, signature);
+        } catch (Exception e) {
+            logger.error("Failed to verify signing request signature.");
+            return false;
+        }
+    }
+
+    public void SendDecryptedChallenge(String decryptedChallenge) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
+        this.SendMessageToController(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
+    }
+
+    public String DecryptChallenge(String encryptedChallenge) {
+        try {
+            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
+            byte[] text = Crypto.Decrypt(KeyVaultProtocolContext.SK_KV_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt challenge");
+            return null;
+        }
+    }
+
+    public Boolean CheckChallengeAnswer(String answer) {
+        return answer.equals(this.challengeString);
     }
 
     public byte[] EncryptChallenge(byte[] challenge) {
@@ -228,17 +236,5 @@ public class KeyVaultProtocolContext extends ProtocolContext {
 
     public void SaveControllerCertificate(String certificateString) {
         this.controllerCertificate = Common.StringToByteArray(certificateString);
-    }
-
-    public byte[] GetControllerCertificate() {
-        return this.controllerCertificate;
-    }
-
-    public void SendMessageToController(MessageType type, JSONObject contents) {
-        this.SendMessage(this.controllerAddress, type, contents);
-    }
-
-    public void SendMessageToController(MessageType type) {
-        this.SendMessage(this.controllerAddress, type, new JSONObject());
     }
 }
