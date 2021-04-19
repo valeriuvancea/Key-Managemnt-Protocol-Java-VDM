@@ -35,6 +35,9 @@ GetEffectivePendingPublicKey() == is not yet specified;
 pure public GetEffectivePendingPrivateKey:() ==> (seq of char)
 GetEffectivePendingPrivateKey() == is not yet specified;
 
+pure public GetSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == is not yet specified;
+
 functions
 -- TODO Define functions here
 traces

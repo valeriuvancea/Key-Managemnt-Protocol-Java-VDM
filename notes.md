@@ -81,4 +81,5 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 4. Verify that the checked challenge matches the generated challenge.
 5. Verify that the check of the challenge yields true.
 6. Verify that the key vault certificate verification yields true.
-7. 
+7. Verify that the function generating the signature for signing request is always presented with the pending effective public key value.
+8.

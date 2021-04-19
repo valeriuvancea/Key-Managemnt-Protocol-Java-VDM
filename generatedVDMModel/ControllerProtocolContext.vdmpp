@@ -7,8 +7,8 @@ instance variables
 	javaObject: generated_vdm_VDMControllerProtocolContext := new generated_vdm_VDMControllerProtocolContext();
 
 	generatedChallenge: seq of int := [];
-	pendingPublicKey: seq of char := [];
-	pendingPrivateKey: seq of char := [];
+	pendingEffectivePublicKey: seq of char := [];
+	pendingEffectivePrivateKey: seq of char := [];
 operations
 public setJavaObject: (seq of char) ==> ()
 setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
@@ -47,16 +47,23 @@ GENERATED_DecryptChallenge(encryptedChallenge) == (
 public GENERATED_GetEffectivePendingPublicKey:() ==> (seq of char)
 GENERATED_GetEffectivePendingPublicKey() == (
 	--Extra VDM expressions can be added to this operation
-	pendingPublicKey := javaObject.GetEffectivePendingPublicKey();
-	return pendingPublicKey;
+	pendingEffectivePublicKey := javaObject.GetEffectivePendingPublicKey();
+	return pendingEffectivePublicKey;
 );
 
 public GENERATED_GetEffectivePendingPrivateKey:() ==> (seq of char)
 GENERATED_GetEffectivePendingPrivateKey() == (
 	--Extra VDM expressions can be added to this operation
-	pendingPrivateKey := javaObject.GetEffectivePendingPrivateKey();
-	return pendingPrivateKey;
+	pendingEffectivePrivateKey := javaObject.GetEffectivePendingPrivateKey();
+	return pendingEffectivePrivateKey;
 );
+
+public GENERATED_GetSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GENERATED_GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath);
+)
+pre keyString = pendingEffectivePublicKey;
 
 functions
 -- TODO Define functions here

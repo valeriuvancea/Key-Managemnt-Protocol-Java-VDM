@@ -253,6 +253,16 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToKeyVault(type.Value(), new JSONObject().toString());
     }
 
+    public void SwitchToEffectivePendingKeys(String effectiveCertificateString) {
+        String effectivePublicKeyString = this.GetEffectivePendingPublicKey();
+        String effectivePrivateKeyString = this.GetEffectivePendingPrivateKey();
+
+        this.SaveEffectiveKeys(effectiveCertificateString, effectivePublicKeyString, effectivePrivateKeyString);
+
+        Common.RemoveFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH);
+        Common.RemoveFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH);
+    }
+
     public void GenerateEffectivePendingKeys() {
         try {
             Crypto.GenerateKeyPairTPM(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
@@ -335,27 +345,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    /**
-     * Make sure the certificate is different each time.
-     */
-    public void SaveEffectiveKeys(String effectiveCertificateString) {
-        try {
-            this.effectiveCertificateString.set(effectiveCertificateString);
-            byte[] effectiveCertificate = Common.StringToByteArray(effectiveCertificateString);
-            Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
-                    ControllerProtocolContext.PK_EFF_FILE_PATH);
-            Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
-                    ControllerProtocolContext.SK_EFF_FILE_PATH);
-            Common.WriteToFile(effectiveCertificate, ControllerProtocolContext.CERT_EFF_FILE_PATH);
-            this.hasJoined.set(true);
-        } catch (Exception e) {
-            logger.error("Failed to save new effective keys and certificate.");
-        }
-    }
-
-    /*
-     * Make sure the generated signature is different each time.
-     */
+    @VDMOperation
     public String GetSigningRequestSignature(String controllerIdString, String keyString, String signingKeyPath) {
         String dataString = controllerIdString.concat(keyString);
         byte[] data = Common.StringToByteArray(dataString);
@@ -365,6 +355,23 @@ public class ControllerProtocolContext extends ProtocolContext {
         } catch (Exception e) {
             logger.error("Failed to generate signature for signing request TPM.");
             return null;
+        }
+    }
+
+    public void SaveEffectiveKeys(String effectiveCertificateString, String effectivePublicKeyString,
+            String effectivePrivateKeyString) {
+        try {
+            this.effectiveCertificateString.set(effectiveCertificateString);
+            byte[] effectiveCertificate = Common.StringToByteArray(effectiveCertificateString);
+            byte[] effectivePublicKey = Common.StringToByteArray(effectivePublicKeyString);
+            byte[] effectivePrivateKey = Common.StringToByteArray(effectivePrivateKeyString);
+
+            Common.WriteToFile(effectiveCertificate, ControllerProtocolContext.CERT_EFF_FILE_PATH);
+            Common.WriteToFile(effectivePublicKey, ControllerProtocolContext.PK_EFF_FILE_PATH);
+            Common.WriteToFile(effectivePrivateKey, ControllerProtocolContext.SK_EFF_FILE_PATH);
+            this.hasJoined.set(true);
+        } catch (Exception e) {
+            logger.error("Failed to save new effective keys and certificate.");
         }
     }
 
