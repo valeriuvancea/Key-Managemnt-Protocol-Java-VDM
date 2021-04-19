@@ -83,4 +83,6 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 6. Verify that the key vault certificate verification yields true.
 7. Verify that the function generating the signature for signing request is always presented with the pending effective public key value.
 8. Verify that the function generating signing request always returns an unique value.
-9. 
+9. Make sure when new effective keys are saved, they match the previously generated pending effective keys.
+10. Make sure that saved effective certificate and public and private key values never repeat.
+11. Make sure that when a certificate is sent to another controller, it matches the latest saved certificate.

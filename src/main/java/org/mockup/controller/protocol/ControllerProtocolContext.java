@@ -73,12 +73,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendEffectiveCertificateToOtherController(this.GetEffectiveCertificateString());
     }
 
-    public void SendEffectiveCertificateToOtherController(String effectiveCertificateString) {
-        JSONObject contents = new JSONObject();
-        contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
-        this.SendMessageToOtherController(MessageType.CONTROLLER_CERTIFICATE_UPDATE, contents);
-    }
-
     public void SaveOtherControllerInformation(String ipAddress, String idString, String certificateString) {
         this.otherControllerFound = true;
         this.otherControllerIdString = idString;
@@ -166,7 +160,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         String hash = this.GetSigningRequestSignature(this.GetAssociateIdString(), key, signingKey);
-        hash = this.GetSigningRequestSignature(this.GetAssociateIdString(), key, signingKey);
 
         if (hash == null) {
             return;
@@ -179,7 +172,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.PK_EFF.Value(), key);
         contents.put(MessageField.HASH.Value(), hash);
-        this.SendMessageToKeyVault(MessageType.SIGNING_REQUEST, contents);
+        this.SendMessageToKeyVault(MessageType.SIGNING_REQUEST.Value(), contents.toString());
     }
 
     public void GenerateStashEncryptAndSendChallenge() {
@@ -203,7 +196,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         String encryptedChallengeString = Common.ByteArrayToString(encryptedChallenge);
         JSONObject contents = new JSONObject();
         contents.put(MessageField.ENCRYPTED_CHALLENGE.Value(), encryptedChallengeString);
-        this.SendMessageToKeyVault(MessageType.CHALLENGE_SUBMISSION, contents);
+        this.SendMessageToKeyVault(MessageType.CHALLENGE_SUBMISSION.Value(), contents.toString());
     }
 
     public byte[] GetKeyVaultCertificate() {
@@ -225,13 +218,13 @@ public class ControllerProtocolContext extends ProtocolContext {
     public void SendDecryptedChallenge(String decryptedChallenge) {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
-        this.SendMessageToKeyVault(MessageType.CHALLENGE_ANSWER, contents);
+        this.SendMessageToKeyVault(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
     }
 
     public void SendJoinRequest() {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.CERT_CT.Value(), this.GetCertControllerAsString());
-        this.SendMessageToKeyVault(MessageType.JOIN_REQUEST, contents);
+        this.SendMessageToKeyVault(MessageType.JOIN_REQUEST.Value(), contents.toString());
     }
 
     public String GetCertControllerAsString() {
@@ -244,10 +237,6 @@ public class ControllerProtocolContext extends ProtocolContext {
 
     public void SendMessageToOtherController(MessageType type, JSONObject contents) {
         this.SendMessageToOtherController(type.Value(), contents.toString());
-    }
-
-    public void SendMessageToKeyVault(MessageType type, JSONObject contents) {
-        this.SendMessageToKeyVault(type.Value(), contents.toString());
     }
 
     public void SendMessageToKeyVault(MessageType type) {
@@ -293,10 +282,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    /*
-     * 1) Make sure the function yields True. 2) Make sure the answer matches the
-     * stashed challenge.
-     */
     @VDMOperation(postCondition = "RESULT = true")
     public Boolean CheckChallengeAnswer(byte[] challengeAnswer) {
         return Arrays.equals(challengeAnswer, this.issuesChallenge);
@@ -359,6 +344,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
+    @VDMOperation
     public void SaveEffectiveKeys(String effectiveCertificateString, String effectivePublicKeyString,
             String effectivePrivateKeyString) {
         try {
@@ -376,6 +362,14 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
+    @VDMOperation
+    public void SendEffectiveCertificateToOtherController(String effectiveCertificateString) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
+        this.SendMessageToOtherController(MessageType.CONTROLLER_CERTIFICATE_UPDATE, contents);
+    }
+
+    /* @VDMOperation - for some reason crashes */
     public void SendMessageToKeyVault(String type, String contents) {
         JSONObject message = new JSONObject(contents);
         message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);

@@ -11,8 +11,16 @@ instance variables
 	pendingEffectivePrivateKey: seq of char := [];
 
 	signatures : seq of seq of char := [];
-	inv forall i, j in set inds signatures & i <> j => signatures(i) <> signatures(j); 
+	inv forall i, j in set inds signatures & i <> j => signatures(i) <> signatures(j);
 
+	effectiveCertificates : seq of seq of char := [];
+	inv forall i, j in set inds effectiveCertificates & i <> j => effectiveCertificates(i) <> effectiveCertificates(j);
+
+	effectivePublicKeys : seq of seq of char := [];
+	inv forall i, j in set inds effectivePublicKeys & i <> j => effectivePublicKeys(i) <> effectivePublicKeys(j); 
+
+	effectivePrivateKeys : seq of seq of char := [];
+	inv forall i, j in set inds effectivePrivateKeys & i <> j => effectivePrivateKeys(i) <> effectivePrivateKeys(j);
 	
 operations
 public setJavaObject: (seq of char) ==> ()
@@ -70,6 +78,22 @@ GENERATED_GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath
 	return newSignature;
 )
 pre keyString = pendingEffectivePublicKey;
+
+public GENERATED_SaveEffectiveKeys:(seq of char) * (seq of char) * (seq of char) ==> ()
+GENERATED_SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectivePrivateKeyString) == (
+	--Extra VDM expressions can be added to this operation
+	effectiveCertificates := effectiveCertificates ^ [effectiveCertificateString];
+	effectivePublicKeys := effectivePublicKeys ^ [effectivePublicKeyString];
+	effectivePrivateKeys := effectivePrivateKeys ^ [effectivePrivateKeyString];
+	javaObject.SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectivePrivateKeyString);
+) pre effectivePublicKeyString = pendingEffectivePublicKey and effectivePrivateKeyString = pendingEffectivePrivateKey;
+
+public GENERATED_SendEffectiveCertificateToOtherController:(seq of char) ==> ()
+GENERATED_SendEffectiveCertificateToOtherController(effectiveCertificateString) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.SendEffectiveCertificateToOtherController(effectiveCertificateString);
+)
+pre effectiveCertificateString = effectiveCertificates(len effectiveCertificates);
 
 functions
 -- TODO Define functions here
