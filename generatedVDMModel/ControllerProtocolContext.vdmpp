@@ -9,6 +9,11 @@ instance variables
 	generatedChallenge: seq of int := [];
 	pendingEffectivePublicKey: seq of char := [];
 	pendingEffectivePrivateKey: seq of char := [];
+
+	signatures : seq of seq of char := [];
+	inv forall i, j in set inds signatures & i <> j => signatures(i) <> signatures(j); 
+
+	
 operations
 public setJavaObject: (seq of char) ==> ()
 setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
@@ -60,8 +65,9 @@ GENERATED_GetEffectivePendingPrivateKey() == (
 
 public GENERATED_GetSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
 GENERATED_GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == (
-	--Extra VDM expressions can be added to this operation
-	javaObject.GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath);
+	dcl newSignature: seq of char := javaObject.GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath);
+	signatures := signatures ^ [newSignature];
+	return newSignature;
 )
 pre keyString = pendingEffectivePublicKey;
 

@@ -166,6 +166,7 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
 
         String hash = this.GetSigningRequestSignature(this.GetAssociateIdString(), key, signingKey);
+        hash = this.GetSigningRequestSignature(this.GetAssociateIdString(), key, signingKey);
 
         if (hash == null) {
             return;
