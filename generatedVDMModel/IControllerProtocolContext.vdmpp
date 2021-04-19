@@ -13,9 +13,8 @@ pure public GenerateChallenge:() ==> (seq of int)
 GenerateChallenge() == is not yet specified
 post len RESULT=128;
 
-pure public CheckKeyVaultCertificate:(seq of char) ==> (bool)
-CheckKeyVaultCertificate(certificateString) == is not yet specified
-post RESULT=true;
+pure public EncryptChallenge:(seq of int) ==> (seq of int)
+EncryptChallenge(challenge) == is not yet specified;
 
 functions
 -- TODO Define functions here

@@ -137,21 +137,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToKeyVault(MessageType.SIGNING_ACK);
     }
 
-    public void SaveEffectiveKeys(String effectiveCertificateString) {
-        try {
-            this.effectiveCertificateString.set(effectiveCertificateString);
-            byte[] effectiveCertificate = Common.StringToByteArray(effectiveCertificateString);
-            Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
-                    ControllerProtocolContext.PK_EFF_FILE_PATH);
-            Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
-                    ControllerProtocolContext.SK_EFF_FILE_PATH);
-            Common.WriteToFile(effectiveCertificate, ControllerProtocolContext.CERT_EFF_FILE_PATH);
-            this.hasJoined.set(true);
-        } catch (Exception e) {
-            logger.error("Failed to save new effective keys and certificate.");
-        }
-    }
-
     public Boolean CheckSigningReplySignature(String controllerIdString, String effectiveCertificateString,
             String caCertificateString, String expectedSignatureString) {
         byte[] expectedSignature = Common.StringToByteArray(expectedSignatureString);
@@ -194,33 +179,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToKeyVault(MessageType.SIGNING_REQUEST, contents);
     }
 
-    public String GetSigningRequestSignature(String controllerIdString, String keyString, String signingKeyPath) {
-        String dataString = controllerIdString.concat(keyString);
-        byte[] data = Common.StringToByteArray(dataString);
-        try {
-            byte[] sign = Crypto.SignTPM(signingKeyPath, data);
-            return Common.ByteArrayToString(sign);
-        } catch (Exception e) {
-            logger.error("Failed to generate signature for signing request TPM.");
-            return null;
-        }
-    }
-
-    public String GenerateEffectivePendingKeys() {
-        try {
-            Pair<byte[], byte[]> keys = Crypto.GenerateKeyPairTPM(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
-                    ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH);
-            return Common.ByteArrayToString(keys.getValue0());
-        } catch (Exception e) {
-            logger.error("Failed to generate controller effective pending keys TPM");
-            return null;
-        }
-    }
-
-    public Boolean CheckChallengeAnswer(String answer) {
-        return answer.equals(this.challengeString);
-    }
-
     public void GenerateStashEncryptAndSendChallenge() {
         byte[] challenge = this.GenerateChallenge();
 
@@ -245,37 +203,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToKeyVault(MessageType.CHALLENGE_SUBMISSION, contents);
     }
 
-    public byte[] EncryptChallenge(byte[] challenge) {
-        try {
-            return Crypto.Encrypt(this.GetKeyVaultCertificate(), challenge);
-        } catch (Exception e) {
-            logger.error("Failed to encrypt challenge.");
-            return null;
-        }
-    }
-
-    @VDMOperation(postCondition = "len RESULT=128")
-    public byte[] GenerateChallenge() {
-        try {
-            return Crypto.GenerateRandomByteArrayTPM();
-        } catch (Exception e) {
-            logger.error("Failed to generate challenge TPM.");
-            return null;
-        }
-    }
-
-    @VDMOperation(postCondition = "RESULT=true")
-    public Boolean CheckKeyVaultCertificate(String certificateString) {
-        byte[] certificate = Common.StringToByteArray(certificateString);
-
-        try {
-            return Crypto.IsCertificateValid(certificate, ControllerProtocolContext.CERT_M_FILE_PATH);
-        } catch (Exception e) {
-            logger.error("Failed to validate key vault certificate");
-            return false;
-        }
-    }
-
     public byte[] GetKeyVaultCertificate() {
         return this.keyVaultCertificate;
     }
@@ -298,17 +225,6 @@ public class ControllerProtocolContext extends ProtocolContext {
         this.SendMessageToKeyVault(MessageType.CHALLENGE_ANSWER, contents);
     }
 
-    public String DecryptChallenge(String encryptedChallenge) {
-        try {
-            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
-            byte[] text = Crypto.DecryptTPM(ControllerProtocolContext.SK_CT_FILE_PATH, cipher);
-            return Common.ByteArrayToString(text);
-        } catch (Exception e) {
-            logger.error("Failed to decrypt challenge TPM");
-            return null;
-        }
-    }
-
     public void SendJoinRequest() {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.CERT_CT.Value(), this.GetCertControllerAsString());
@@ -324,17 +240,134 @@ public class ControllerProtocolContext extends ProtocolContext {
     }
 
     public void SendMessageToOtherController(MessageType type, JSONObject contents) {
-        contents.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
-        contents.put(MessageField.SENDER_ID.Value(), this.GetAssociateIdString());
-        contents.put(MessageField.TYPE.Value(), type.Value());
-        this.sender.SendMessage(this.otherControllerIpAddress, contents);
+        this.SendMessageToOtherController(type.Value(), contents.toString());
     }
 
     public void SendMessageToKeyVault(MessageType type, JSONObject contents) {
-        this.SendMessage(this.keyVaultIpAddress, type, contents);
+        this.SendMessageToKeyVault(type.Value(), contents.toString());
     }
 
     public void SendMessageToKeyVault(MessageType type) {
-        this.SendMessageToKeyVault(type, new JSONObject());
+        this.SendMessageToKeyVault(type.Value(), new JSONObject().toString());
+    }
+
+    /**
+     * 1) Verify generated challenge length. 2) Stash the challenge value in VDM
+     * before a return.
+     */
+    @VDMOperation(postCondition = "len RESULT=128")
+    public byte[] GenerateChallenge() {
+        try {
+            return Crypto.GenerateRandomByteArrayTPM();
+        } catch (Exception e) {
+            logger.error("Failed to generate challenge TPM.");
+            return null;
+        }
+    }
+
+    /*
+     * 1) Make sure encrypted challenge looks different from not encrypted. 2) Make
+     * sure challenge being encrypted is the same as stashed one.
+     */
+    @VDMOperation()
+    public byte[] EncryptChallenge(byte[] challenge) {
+        try {
+            return Crypto.Encrypt(this.GetKeyVaultCertificate(), challenge);
+        } catch (Exception e) {
+            logger.error("Failed to encrypt challenge.");
+            return null;
+        }
+    }
+
+    /*
+     * 1) Make sure the function yields True. 2) Make sure the answer matches the
+     * stashed challenge.
+     */
+    public Boolean CheckChallengeAnswer(String answer) {
+        return answer.equals(this.challengeString);
+    }
+
+    public Boolean CheckKeyVaultCertificate(String certificateString) {
+        byte[] certificate = Common.StringToByteArray(certificateString);
+
+        try {
+            return Crypto.IsCertificateValid(certificate, ControllerProtocolContext.CERT_M_FILE_PATH);
+        } catch (Exception e) {
+            logger.error("Failed to validate key vault certificate");
+            return false;
+        }
+    }
+
+    /*
+     * 1) Stash generated keys. Make sure each time keys are different.
+     */
+    public String GenerateEffectivePendingKeys() {
+        try {
+            Pair<byte[], byte[]> keys = Crypto.GenerateKeyPairTPM(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
+                    ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH);
+            return Common.ByteArrayToString(keys.getValue0());
+        } catch (Exception e) {
+            logger.error("Failed to generate controller effective pending keys TPM");
+            return null;
+        }
+    }
+
+    /**
+     * Make sure the certificate is different each time.
+     */
+    public void SaveEffectiveKeys(String effectiveCertificateString) {
+        try {
+            this.effectiveCertificateString.set(effectiveCertificateString);
+            byte[] effectiveCertificate = Common.StringToByteArray(effectiveCertificateString);
+            Common.RenameFile(ControllerProtocolContext.PK_EFF_PENDING_FILE_PATH,
+                    ControllerProtocolContext.PK_EFF_FILE_PATH);
+            Common.RenameFile(ControllerProtocolContext.SK_EFF_PENDING_FILE_PATH,
+                    ControllerProtocolContext.SK_EFF_FILE_PATH);
+            Common.WriteToFile(effectiveCertificate, ControllerProtocolContext.CERT_EFF_FILE_PATH);
+            this.hasJoined.set(true);
+        } catch (Exception e) {
+            logger.error("Failed to save new effective keys and certificate.");
+        }
+    }
+
+    /*
+     * Make sure the generated signature is different each time.
+     */
+    public String GetSigningRequestSignature(String controllerIdString, String keyString, String signingKeyPath) {
+        String dataString = controllerIdString.concat(keyString);
+        byte[] data = Common.StringToByteArray(dataString);
+        try {
+            byte[] sign = Crypto.SignTPM(signingKeyPath, data);
+            return Common.ByteArrayToString(sign);
+        } catch (Exception e) {
+            logger.error("Failed to generate signature for signing request TPM.");
+            return null;
+        }
+    }
+
+    public String DecryptChallenge(String encryptedChallenge) {
+        try {
+            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
+            byte[] text = Crypto.DecryptTPM(ControllerProtocolContext.SK_CT_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt challenge TPM");
+            return null;
+        }
+    }
+
+    public void SendMessageToKeyVault(String type, String contents) {
+        JSONObject message = new JSONObject(contents);
+        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
+        message.put(MessageField.TYPE.Value(), type);
+        this.sender.SendMessage(this.keyVaultIpAddress, message.toString());
+    }
+
+    public void SendMessageToOtherController(String type, String contents) {
+        JSONObject message = new JSONObject(contents);
+        message.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
+        message.put(MessageField.SENDER_ID.Value(), this.associatedIdString);
+        message.put(MessageField.TYPE.Value(), type);
+        this.sender.SendMessage(this.otherControllerIpAddress, message);
     }
 }
