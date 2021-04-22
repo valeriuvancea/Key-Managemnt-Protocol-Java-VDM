@@ -64,7 +64,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             return "";
         }
 
-        System.out.println(effectiveKeyString);
         String hash = this.GetEffectiveCertificateSignature(this.GetAssociateIdString(), certificate,
                 this.caCertificateString);
 
@@ -244,7 +243,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
 
     @VDMOperation()
     public void SendMessage(String type, String contents) {
-        System.out.println(type);
         JSONObject message = new JSONObject(contents);
         message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
         message.put(MessageField.TYPE.Value(), type);
