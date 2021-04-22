@@ -13,6 +13,22 @@ pure public GenerateChallenge:() ==> (seq of int)
 GenerateChallenge() == is not yet specified
 post len RESULT = 128;
 
+pure public EncryptChallenge:(seq of int) ==> (seq of int)
+EncryptChallenge(challenge) == is not yet specified
+post RESULT <> challenge;
+
+pure public CheckChallengeAnswer:(seq of int) ==> (bool)
+CheckChallengeAnswer(challengeAnswer) == is not yet specified
+post RESULT = true;
+
+pure public CheckControllerCertificate:(seq of char) ==> (bool)
+CheckControllerCertificate(certificateString) == is not yet specified
+post RESULT = true;
+
+pure public DecryptChallenge:(seq of char) ==> (seq of char)
+DecryptChallenge(encryptedChallenge) == is not yet specified
+post RESULT <> encryptedChallenge;
+
 public SendMessage:(seq of char) * (seq of char) ==> ()
 SendMessage(type,contents) == is not yet specified;
 

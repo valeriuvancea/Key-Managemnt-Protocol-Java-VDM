@@ -35,7 +35,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
 
     private byte[] controllerCertificate;
     private byte[] controllerEffectiveCertificate;
-    private byte issuedChallenge;
+    private byte[] issuedChallenge;
     private Boolean hasJoined;
 
     public KeyVaultProtocolContext(String controllerAddress, byte[] associatedId, Sender sender,
