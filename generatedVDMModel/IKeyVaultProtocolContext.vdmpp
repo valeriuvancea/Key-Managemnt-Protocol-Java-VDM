@@ -21,13 +21,13 @@ pure public CheckChallengeAnswer:(seq of int) ==> (bool)
 CheckChallengeAnswer(challengeAnswer) == is not yet specified
 post RESULT = true;
 
-pure public CheckControllerCertificate:(seq of char) ==> (bool)
-CheckControllerCertificate(certificateString) == is not yet specified
-post RESULT = true;
-
 pure public DecryptChallenge:(seq of char) ==> (seq of char)
 DecryptChallenge(encryptedChallenge) == is not yet specified
 post RESULT <> encryptedChallenge;
+
+pure public CheckControllerCertificate:(seq of char) ==> (bool)
+CheckControllerCertificate(certificateString) == is not yet specified
+post RESULT = true;
 
 public SendMessage:(seq of char) * (seq of char) ==> ()
 SendMessage(type,contents) == is not yet specified;

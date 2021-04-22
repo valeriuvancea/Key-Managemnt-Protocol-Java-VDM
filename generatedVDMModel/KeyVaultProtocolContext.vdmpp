@@ -16,7 +16,10 @@ allowedMessageOrder : map Message`MessageType  to set of Message`MessageType = {
 instance variables
 	javaObject: generated_vdm_VDMKeyVaultProtocolContext := new generated_vdm_VDMKeyVaultProtocolContext();
 
-	generatedChallenge: seq of int := [];
+	private generatedChallenge: seq of int := [];
+
+	private receivedCertificates : seq of seq of char := [];
+		inv forall i, j in set inds receivedCertificates & i <> j => receivedCertificates(i) <> receivedCertificates(j);
 
 	private previousMessage : Message`MessageType := <UNKNOWN>;
 operations
@@ -52,8 +55,9 @@ GENERATED_CheckChallengeAnswer(challengeAnswer) == (
 
 public GENERATED_CheckControllerCertificate:(seq of char) ==> (bool)
 GENERATED_CheckControllerCertificate(certificateString) == (
-	--Extra VDM expressions can be added to this operation
-	javaObject.CheckControllerCertificate(certificateString);
+	dcl certificate : seq of char := certificateString;
+	receivedCertificates := receivedCertificates ^ [certificate];
+	return javaObject.CheckControllerCertificate(certificateString);
 );
 
 public GENERATED_DecryptChallenge:(seq of char) ==> (seq of char)

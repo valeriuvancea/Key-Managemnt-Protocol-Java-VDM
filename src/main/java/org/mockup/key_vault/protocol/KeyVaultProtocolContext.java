@@ -152,6 +152,18 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         return Arrays.equals(challengeAnswer, this.issuedChallenge);
     }
 
+    @VDMOperation(postCondition = "RESULT <> encryptedChallenge")
+    public String DecryptChallenge(String encryptedChallenge) {
+        try {
+            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
+            byte[] text = Crypto.Decrypt(KeyVaultProtocolContext.SK_KV_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt challenge");
+            return null;
+        }
+    }
+
     @VDMOperation(postCondition = "RESULT = true")
     public Boolean CheckControllerCertificate(String certificateString) {
         /*
@@ -164,18 +176,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         } catch (Exception e) {
             logger.error("Failed to validate controller certificate");
             return false;
-        }
-    }
-
-    @VDMOperation(postCondition = "RESULT <> encryptedChallenge")
-    public String DecryptChallenge(String encryptedChallenge) {
-        try {
-            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
-            byte[] text = Crypto.Decrypt(KeyVaultProtocolContext.SK_KV_FILE_PATH, cipher);
-            return Common.ByteArrayToString(text);
-        } catch (Exception e) {
-            logger.error("Failed to decrypt challenge");
-            return null;
         }
     }
 
