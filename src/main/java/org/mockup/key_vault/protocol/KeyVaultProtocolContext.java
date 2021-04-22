@@ -132,6 +132,10 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
     }
 
+    public void SaveControllerCertificate(String certificateString) {
+        this.controllerCertificate = Common.StringToByteArray(certificateString);
+    }
+
     /* To annotate: */
     @VDMOperation(postCondition = "len RESULT = 128")
     public byte[] GenerateChallenge() {
@@ -204,11 +208,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         }
     }
 
-    public void SaveEffectiveCertificate(String effectiveCertificate) {
-        this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
-        this.hasJoined = true;
-    }
-
+    @VDMOperation()
     public String GenerateEffectiveCertificate(String effectiveKeyString) {
         byte[] effectiveKey = Common.StringToByteArray(effectiveKeyString);
         try {
@@ -219,6 +219,11 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             logger.error("Failed to generate controller effective key certificate");
             return null;
         }
+    }
+
+    public void SaveEffectiveCertificate(String effectiveCertificate) {
+        this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
+        this.hasJoined = true;
     }
 
     public String GetEffectiveCertificateSignature(String controllerIdString, String effectiveCertificateString,
@@ -232,10 +237,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             logger.error("Failed to generate signature for signing reply.");
             return null;
         }
-    }
-
-    public void SaveControllerCertificate(String certificateString) {
-        this.controllerCertificate = Common.StringToByteArray(certificateString);
     }
 
     @VDMOperation()

@@ -25,6 +25,9 @@ instance variables
 	private static receivedEffectiveKeys : seq of seq of char := [];
 		inv forall i, j in set inds receivedEffectiveKeys & i <> j => receivedEffectiveKeys(i) <> receivedEffectiveKeys(j);
 
+	private static generatedEffectiveCertificates : seq of seq of char := [];
+		inv forall i, j in set inds generatedEffectiveCertificates & i <> j => generatedEffectiveCertificates(i) <> generatedEffectiveCertificates(j);
+
 	private previousMessage : Message`MessageType := <UNKNOWN>;
 operations
 public setJavaObject: (seq of char) ==> ()
@@ -74,6 +77,13 @@ GENERATED_CheckSigningRequestSignature(controllerIdString,keyString,expectedSign
 	receivedEffectiveKeys := receivedEffectiveKeys ^ [keyString];
 	javaObject.CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature);
 );
+
+public GENERATED_GenerateEffectiveCertificate:(seq of char) ==> (seq of char)
+GENERATED_GenerateEffectiveCertificate(effectiveKeyString) == (
+	dcl effectiveCertificate : seq of char := javaObject.GenerateEffectiveCertificate(effectiveKeyString);
+	generatedEffectiveCertificates := generatedEffectiveCertificates ^ [effectiveCertificate];
+	return effectiveCertificate;
+) pre effectiveKeyString in set elems receivedEffectiveKeys;
 
 functions
 -- TODO Define functions here

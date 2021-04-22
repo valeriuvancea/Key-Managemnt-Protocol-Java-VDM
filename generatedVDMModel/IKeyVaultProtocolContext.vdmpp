@@ -33,6 +33,9 @@ pure public CheckSigningRequestSignature:(seq of char) * (seq of char) * (seq of
 CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature) == is not yet specified
 post RESULT = true;
 
+pure public GenerateEffectiveCertificate:(seq of char) ==> (seq of char)
+GenerateEffectiveCertificate(effectiveKeyString) == is not yet specified;
+
 public SendMessage:(seq of char) * (seq of char) ==> ()
 SendMessage(type,contents) == is not yet specified;
 

@@ -95,3 +95,7 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 5. Verify that the check of the challenge yields true.
 6. Check that controller certificate check yields true.
 7. Check that no duplicate controller certificate is checked.
+8. Check no duplicate effective key is received.
+9. Check that effective certificates are only generated for a key that has been received.
+10. Check that no duplicate effective certificate is generated.
+11.
