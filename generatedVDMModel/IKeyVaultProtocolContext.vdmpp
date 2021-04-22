@@ -13,6 +13,9 @@ pure public GenerateChallenge:() ==> (seq of int)
 GenerateChallenge() == is not yet specified
 post len RESULT = 128;
 
+public SendMessage:(seq of char) * (seq of char) ==> ()
+SendMessage(type,contents) == is not yet specified;
+
 functions
 -- TODO Define functions here
 traces

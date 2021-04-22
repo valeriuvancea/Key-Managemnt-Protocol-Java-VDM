@@ -53,7 +53,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     }
 
     public void SendRekeyRequest() {
-        this.SendMessageToController(MessageType.RE_KEY_REQUEST.Value(), new JSONObject().toString());
+        this.SendMessage(MessageType.RE_KEY_REQUEST.Value(), new JSONObject().toString());
     }
 
     public String GenerateAndSendEffectiveCertificate(String effectiveKeyString) {
@@ -80,7 +80,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
         contents.put(MessageField.CERT_CA.Value(), caCertificateString);
         contents.put(MessageField.HASH.Value(), hash);
-        this.SendMessageToController(MessageType.SIGNING_REPLY.Value(), contents.toString());
+        this.SendMessage(MessageType.SIGNING_REPLY.Value(), contents.toString());
     }
 
     public void DecryptAndSendChallengeAnswer(String encryptedChallenge) {
@@ -94,7 +94,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     public void SendKeyVaultCertificate() {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.CERT_KV.Value(), this.keyVaultCertificateString);
-        this.SendMessageToController(MessageType.KEY_VAULT_CERTIFICATE.Value(), contents.toString());
+        this.SendMessage(MessageType.KEY_VAULT_CERTIFICATE.Value(), contents.toString());
     }
 
     public void GenerateStashEncryptAndSendChallenge() {
@@ -118,7 +118,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         String encryptedChallengeString = Common.ByteArrayToString(encryptedChallenge);
         JSONObject contents = new JSONObject();
         contents.put(MessageField.ENCRYPTED_CHALLENGE.Value(), encryptedChallengeString);
-        this.SendMessageToController(MessageType.CHALLENGE_SUBMISSION.Value(), contents.toString());
+        this.SendMessage(MessageType.CHALLENGE_SUBMISSION.Value(), contents.toString());
     }
 
     public byte[] GetControllerCertificate() {
@@ -134,13 +134,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             logger.error("Failed to generate challenge.");
             return null;
         }
-    }
-
-    public void SendMessageToController(String type, String contents) {
-        JSONObject message = new JSONObject(contents);
-        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
-        message.put(MessageField.TYPE.Value(), type);
-        this.sender.SendMessage(this.controllerAddress, message);
     }
 
     public void SaveEffectiveCertificate(String effectiveCertificate) {
@@ -194,7 +187,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
     public void SendDecryptedChallenge(String decryptedChallenge) {
         JSONObject contents = new JSONObject();
         contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
-        this.SendMessageToController(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
+        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
     }
 
     public String DecryptChallenge(String encryptedChallenge) {
@@ -237,5 +230,14 @@ public class KeyVaultProtocolContext extends ProtocolContext {
 
     public void SaveControllerCertificate(String certificateString) {
         this.controllerCertificate = Common.StringToByteArray(certificateString);
+    }
+
+    @VDMOperation()
+    public void SendMessage(String type, String contents) {
+        System.out.println(type);
+        JSONObject message = new JSONObject(contents);
+        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
+        message.put(MessageField.TYPE.Value(), type);
+        this.sender.SendMessage(this.controllerAddress, message);
     }
 }
