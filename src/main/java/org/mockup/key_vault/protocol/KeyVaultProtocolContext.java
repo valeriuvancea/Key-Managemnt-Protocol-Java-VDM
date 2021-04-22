@@ -1,6 +1,7 @@
 package org.mockup.key_vault.protocol;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.swing.event.ChangeListener;
 import javax.xml.soap.MessageFactory;
@@ -34,7 +35,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
 
     private byte[] controllerCertificate;
     private byte[] controllerEffectiveCertificate;
-    private String challengeString;
+    private byte issuedChallenge;
     private Boolean hasJoined;
 
     public KeyVaultProtocolContext(String controllerAddress, byte[] associatedId, Sender sender,
@@ -104,7 +105,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             return;
         }
 
-        this.challengeString = Common.ByteArrayToString(challenge);
+        this.issuedChallenge = challenge;
         byte[] encryptedChallenge = this.EncryptChallenge(challenge);
 
         if (encryptedChallenge == null) {
@@ -134,6 +135,54 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             logger.error("Failed to generate challenge.");
             return null;
         }
+    }
+
+    @VDMOperation(postCondition = "RESULT <> challenge")
+    public byte[] EncryptChallenge(byte[] challenge) {
+        try {
+            return Crypto.Encrypt(this.GetControllerCertificate(), challenge);
+        } catch (Exception e) {
+            logger.error("Failed to encrypt challenge.");
+            return null;
+        }
+    }
+
+    @VDMOperation(postCondition = "RESULT = true")
+    public Boolean CheckChallengeAnswer(byte[] challengeAnswer) {
+        return Arrays.equals(challengeAnswer, this.issuedChallenge);
+    }
+
+    @VDMOperation(postCondition = "RESULT = true")
+    public Boolean CheckControllerCertificate(String certificateString) {
+        /*
+         * TODO: does it make sense to check that controller id matches the one
+         * presented in the certificate?
+         */
+        byte[] certificate = Common.StringToByteArray(certificateString);
+        try {
+            return Crypto.IsCertificateValid(certificate, KeyVaultProtocolContext.CERT_M_FILE_PATH);
+        } catch (Exception e) {
+            logger.error("Failed to validate controller certificate");
+            return false;
+        }
+    }
+
+    @VDMOperation(postCondition = "RESULT <> encryptedChallenge")
+    public String DecryptChallenge(String encryptedChallenge) {
+        try {
+            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
+            byte[] text = Crypto.Decrypt(KeyVaultProtocolContext.SK_KV_FILE_PATH, cipher);
+            return Common.ByteArrayToString(text);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt challenge");
+            return null;
+        }
+    }
+
+    public void SendDecryptedChallenge(String decryptedChallenge) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
+        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
     }
 
     public void SaveEffectiveCertificate(String effectiveCertificate) {
@@ -180,50 +229,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             return Crypto.IsSignatureValid(certificate, data, signature);
         } catch (Exception e) {
             logger.error("Failed to verify signing request signature.");
-            return false;
-        }
-    }
-
-    public void SendDecryptedChallenge(String decryptedChallenge) {
-        JSONObject contents = new JSONObject();
-        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
-        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
-    }
-
-    public String DecryptChallenge(String encryptedChallenge) {
-        try {
-            byte[] cipher = Common.StringToByteArray(encryptedChallenge);
-            byte[] text = Crypto.Decrypt(KeyVaultProtocolContext.SK_KV_FILE_PATH, cipher);
-            return Common.ByteArrayToString(text);
-        } catch (Exception e) {
-            logger.error("Failed to decrypt challenge");
-            return null;
-        }
-    }
-
-    public Boolean CheckChallengeAnswer(String answer) {
-        return answer.equals(this.challengeString);
-    }
-
-    public byte[] EncryptChallenge(byte[] challenge) {
-        try {
-            return Crypto.Encrypt(this.GetControllerCertificate(), challenge);
-        } catch (Exception e) {
-            logger.error("Failed to encrypt challenge.");
-            return null;
-        }
-    }
-
-    public Boolean CheckControllerCertificate(String certificateString) {
-        /*
-         * TODO: does it make sense to check that controller id matches the one
-         * presented in the certificate?
-         */
-        byte[] certificate = Common.StringToByteArray(certificateString);
-        try {
-            return Crypto.IsCertificateValid(certificate, KeyVaultProtocolContext.CERT_M_FILE_PATH);
-        } catch (Exception e) {
-            logger.error("Failed to validate controller certificate");
             return false;
         }
     }
