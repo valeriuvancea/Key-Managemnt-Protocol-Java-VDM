@@ -64,6 +64,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             return "";
         }
 
+        System.out.println(effectiveKeyString);
         String hash = this.GetEffectiveCertificateSignature(this.GetAssociateIdString(), certificate,
                 this.caCertificateString);
 
@@ -227,6 +228,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         this.hasJoined = true;
     }
 
+    @VDMOperation()
     public String GetEffectiveCertificateSignature(String controllerIdString, String effectiveCertificateString,
             String caCertificateString) {
         String dataString = controllerIdString.concat(effectiveCertificateString).concat(caCertificateString);

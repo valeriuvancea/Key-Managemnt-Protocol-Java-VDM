@@ -28,6 +28,11 @@ instance variables
 	private static generatedEffectiveCertificates : seq of seq of char := [];
 		inv forall i, j in set inds generatedEffectiveCertificates & i <> j => generatedEffectiveCertificates(i) <> generatedEffectiveCertificates(j);
 
+	private static generatedSignatures : seq of seq of char := [];
+		inv forall i, j in set inds generatedSignatures & i <> j => generatedSignatures(i) <> generatedSignatures(j);
+
+	private static usedCACertificate : [seq of char] := nil;
+
 	private previousMessage : Message`MessageType := <UNKNOWN>;
 operations
 public setJavaObject: (seq of char) ==> ()
@@ -91,6 +96,16 @@ GENERATED_SaveEffectiveCertificate(effectiveCertificate) == (
 	--Extra VDM expressions can be added to this operation
 	javaObject.SaveEffectiveCertificate(effectiveCertificate);
 ) pre effectiveCertificate in set elems generatedEffectiveCertificates;
+
+
+public GENERATED_GetEffectiveCertificateSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GENERATED_GetEffectiveCertificateSignature(controllerIdString,effectiveCertificateString,caCertificateString) == (
+	--Extra VDM expressions can be added to this operation
+	dcl signature : seq of char := javaObject.GetEffectiveCertificateSignature(controllerIdString,effectiveCertificateString,caCertificateString);
+	generatedSignatures := generatedSignatures ^ [signature];
+	usedCACertificate := caCertificateString;
+	return signature;
+) post (effectiveCertificateString in set elems generatedEffectiveCertificates) and (if usedCACertificate~ = nil then true else usedCACertificate = caCertificateString);
 
 functions
 -- TODO Define functions here

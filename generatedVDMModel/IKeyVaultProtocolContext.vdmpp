@@ -39,6 +39,9 @@ GenerateEffectiveCertificate(effectiveKeyString) == is not yet specified;
 public SaveEffectiveCertificate:(seq of char) ==> ()
 SaveEffectiveCertificate(effectiveCertificate) == is not yet specified;
 
+pure public GetEffectiveCertificateSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GetEffectiveCertificateSignature(controllerIdString,effectiveCertificateString,caCertificateString) == is not yet specified;
+
 public SendMessage:(seq of char) * (seq of char) ==> ()
 SendMessage(type,contents) == is not yet specified;
 

@@ -85,7 +85,6 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 8. Verify that the function generating signing request always returns an unique value.
 9. Make sure when new effective keys are saved, they match the previously generated pending effective keys.
 10. Make sure that saved effective certificate and public and private key values never repeat.
-11. Make sure that when a certificate is sent to another controller, it matches the latest saved certificate.
 
 ## Key vault
 1. Verify generated challenge length.
@@ -98,4 +97,6 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 8. Check no duplicate effective key is received.
 9. Check that effective certificates are only generated for a key that has been received.
 10. Check that no duplicate effective certificate is generated.
-11.
+11. Check that signatures are only generated for signed certificates.
+12. Check that only one value of a certificate authority's certificate is used for generating effective certificates.
+13. Check that all generated signatures are unique.

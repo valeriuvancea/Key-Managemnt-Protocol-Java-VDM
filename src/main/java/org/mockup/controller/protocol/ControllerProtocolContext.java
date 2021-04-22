@@ -262,12 +262,10 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    public void SendMessageToKeyVault(String type, String contents) {
-        this.SendMessage(this.keyVaultIpAddress, type, contents);
-    }
-
-    public void SendMessageToOtherController(String type, String contents) {
-        this.SendMessage(this.otherControllerIpAddress, type, contents);
+    public void SendEffectiveCertificateToOtherController(String effectiveCertificateString) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
+        this.SendMessageToOtherController(MessageType.CONTROLLER_CERTIFICATE_UPDATE, contents);
     }
 
     @VDMOperation(postCondition = "len RESULT=128")
@@ -370,17 +368,22 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
-    @VDMOperation
-    public void SendEffectiveCertificateToOtherController(String effectiveCertificateString) {
-        JSONObject contents = new JSONObject();
-        contents.put(MessageField.CERT_EFF.Value(), effectiveCertificateString);
-        this.SendMessageToOtherController(MessageType.CONTROLLER_CERTIFICATE_UPDATE, contents);
+    public void SendMessageToKeyVault(String type, String contents) {
+        JSONObject message = new JSONObject(contents);
+        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
+        this.SendMessage(this.keyVaultIpAddress, type, message.toString());
+    }
+
+    public void SendMessageToOtherController(String type, String contents) {
+        JSONObject message = new JSONObject(contents);
+        message.put(MessageField.SENDER_ID.Value(), this.associatedIdString);
+        message.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
+        this.SendMessage(this.otherControllerIpAddress, type, message.toString());
     }
 
     @VDMOperation
     public void SendMessage(String address, String type, String contents) {
         JSONObject message = new JSONObject(contents);
-        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
         message.put(MessageField.TYPE.Value(), type);
         this.sender.SendMessage(address, message.toString());
     }

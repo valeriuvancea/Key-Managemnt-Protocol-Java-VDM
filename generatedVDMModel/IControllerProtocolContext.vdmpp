@@ -41,9 +41,6 @@ GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == is no
 public SaveEffectiveKeys:(seq of char) * (seq of char) * (seq of char) ==> ()
 SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectivePrivateKeyString) == is not yet specified;
 
-public SendEffectiveCertificateToOtherController:(seq of char) ==> ()
-SendEffectiveCertificateToOtherController(effectiveCertificateString) == is not yet specified;
-
 public SendMessage:(seq of char) * (seq of char) * (seq of char) ==> ()
 SendMessage(address,type,contents) == is not yet specified;
 
