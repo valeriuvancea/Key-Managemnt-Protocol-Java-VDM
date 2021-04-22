@@ -262,6 +262,14 @@ public class ControllerProtocolContext extends ProtocolContext {
         }
     }
 
+    public void SendMessageToKeyVault(String type, String contents) {
+        this.SendMessage(this.keyVaultIpAddress, type, contents);
+    }
+
+    public void SendMessageToOtherController(String type, String contents) {
+        this.SendMessage(this.otherControllerIpAddress, type, contents);
+    }
+
     @VDMOperation(postCondition = "len RESULT=128")
     public byte[] GenerateChallenge() {
         try {
@@ -370,18 +378,10 @@ public class ControllerProtocolContext extends ProtocolContext {
     }
 
     @VDMOperation
-    public void SendMessageToKeyVault(String type, String contents) {
+    public void SendMessage(String address, String type, String contents) {
         JSONObject message = new JSONObject(contents);
         message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
         message.put(MessageField.TYPE.Value(), type);
-        this.sender.SendMessage(this.keyVaultIpAddress, message.toString());
-    }
-
-    public void SendMessageToOtherController(String type, String contents) {
-        JSONObject message = new JSONObject(contents);
-        message.put(MessageField.CONTROLLER_ID.Value(), this.otherControllerIdString);
-        message.put(MessageField.SENDER_ID.Value(), this.associatedIdString);
-        message.put(MessageField.TYPE.Value(), type);
-        this.sender.SendMessage(this.otherControllerIpAddress, message);
+        this.sender.SendMessage(address, message.toString());
     }
 }

@@ -17,26 +17,9 @@ pure public EncryptChallenge:(seq of int) ==> (seq of int)
 EncryptChallenge(challenge) == is not yet specified
 post RESULT <> challenge;
 
-pure public CheckChallengeAnswer:(seq of int) ==> (bool)
-CheckChallengeAnswer(challengeAnswer) == is not yet specified
-post RESULT = true;
-
-pure public CheckKeyVaultCertificate:(seq of char) ==> (bool)
-CheckKeyVaultCertificate(certificateString) == is not yet specified
-post RESULT = true;
-
 pure public DecryptChallenge:(seq of char) ==> (seq of char)
 DecryptChallenge(encryptedChallenge) == is not yet specified
 post RESULT <> encryptedChallenge;
-
-pure public GetEffectivePendingPublicKey:() ==> (seq of char)
-GetEffectivePendingPublicKey() == is not yet specified;
-
-pure public GetEffectivePendingPrivateKey:() ==> (seq of char)
-GetEffectivePendingPrivateKey() == is not yet specified;
-
-pure public GetSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
-GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == is not yet specified;
 
 public SaveEffectiveKeys:(seq of char) * (seq of char) * (seq of char) ==> ()
 SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectivePrivateKeyString) == is not yet specified;
@@ -44,8 +27,25 @@ SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectiveP
 public SendEffectiveCertificateToOtherController:(seq of char) ==> ()
 SendEffectiveCertificateToOtherController(effectiveCertificateString) == is not yet specified;
 
-public SendMessageToKeyVault:(seq of char) * (seq of char) ==> ()
-SendMessageToKeyVault(type,contents) == is not yet specified;
+pure public GetEffectivePendingPrivateKey:() ==> (seq of char)
+GetEffectivePendingPrivateKey() == is not yet specified;
+
+pure public GetSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == is not yet specified;
+
+pure public CheckKeyVaultCertificate:(seq of char) ==> (bool)
+CheckKeyVaultCertificate(certificateString) == is not yet specified
+post RESULT = true;
+
+public SendMessage:(seq of char) * (seq of char) * (seq of char) ==> ()
+SendMessage(address,type,contents) == is not yet specified;
+
+pure public GetEffectivePendingPublicKey:() ==> (seq of char)
+GetEffectivePendingPublicKey() == is not yet specified;
+
+pure public CheckChallengeAnswer:(seq of int) ==> (bool)
+CheckChallengeAnswer(challengeAnswer) == is not yet specified
+post RESULT = true;
 
 functions
 -- TODO Define functions here
