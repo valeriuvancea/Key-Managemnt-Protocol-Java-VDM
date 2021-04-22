@@ -4,3 +4,4 @@ keyManagementProtocol.jar
 deployment_store/*
 target/*
 .classpath
+bin/*

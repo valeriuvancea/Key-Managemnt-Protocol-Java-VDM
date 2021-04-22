@@ -1,0 +1,114 @@
+class KeyVaultProtocolContext
+types
+-- TODO Define types here
+values
+
+allowedMessageOrder : map Message`MessageType  to set of Message`MessageType = {
+	<UNKNOWN> |-> {<KEY_VAULT_DISCOVERY_REPLY>},
+	<KEY_VAULT_DISCOVERY_REPLY> |-> {<KEY_VAULT_DISCOVERY_REPLY>, <CHALLENGE_SUBMISSION>},
+	<CHALLENGE_SUBMISSION> |-> {<CHALLENGE_SUBMISSION> , <KEY_VAULT_CERTIFICATE>},
+	<KEY_VAULT_CERTIFICATE> |-> {<KEY_VAULT_CERTIFICATE>, <CHALLENGE_ANSWER>},
+	<CHALLENGE_ANSWER> |-> {<CHALLENGE_ANSWER>, <SIGNING_REPLY>},
+	<SIGNING_REPLY> |-> {<SIGNING_REPLY>, <RE_KEY_REQUEST>},
+	<RE_KEY_REQUEST> |-> {<RE_KEY_REQUEST>, <SIGNING_REPLY>}
+};
+
+instance variables
+	javaObject: generated_vdm_VDMKeyVaultProtocolContext := new generated_vdm_VDMKeyVaultProtocolContext();
+
+	private generatedChallenge: seq of int := [];
+	private decryptedChallenge: seq of char := [];
+
+	private static receivedCertificates : seq of seq of char := [];
+		inv forall i, j in set inds receivedCertificates & i <> j => receivedCertificates(i) <> receivedCertificates(j);
+
+	private static receivedEffectiveKeys : seq of seq of char := [];
+		inv forall i, j in set inds receivedEffectiveKeys & i <> j => receivedEffectiveKeys(i) <> receivedEffectiveKeys(j);
+
+	private static generatedEffectiveCertificates : seq of seq of char := [];
+		inv forall i, j in set inds generatedEffectiveCertificates & i <> j => generatedEffectiveCertificates(i) <> generatedEffectiveCertificates(j);
+
+	private static generatedSignatures : seq of seq of char := [];
+		inv forall i, j in set inds generatedSignatures & i <> j => generatedSignatures(i) <> generatedSignatures(j);
+
+	private static usedCACertificate : [seq of char] := nil;
+
+	private previousMessage : Message`MessageType := <UNKNOWN>;
+operations
+public setJavaObject: (seq of char) ==> ()
+setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
+
+public GENERATED_GenerateChallenge:() ==> (seq of int)
+GENERATED_GenerateChallenge() == (
+	generatedChallenge := javaObject.GenerateChallenge();
+	return generatedChallenge;
+);
+
+public GENERATED_SendMessage:(seq of char) * (seq of char) ==> ()
+GENERATED_SendMessage(type,contents) == (
+	previousMessage := Message`StringToMessageType(type);
+	return javaObject.SendMessage(type,contents);
+)pre (
+	    let messageType : Message`MessageType = Message`StringToMessageType(type) in (
+	        messageType in set dom allowedMessageOrder and
+          	messageType in set allowedMessageOrder(previousMessage)));
+
+public GENERATED_EncryptChallenge:(seq of int) ==> (seq of int)
+GENERATED_EncryptChallenge(challenge) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.EncryptChallenge(challenge);
+) pre generatedChallenge = challenge;
+
+public GENERATED_CheckChallengeAnswer:(seq of int) ==> (bool)
+GENERATED_CheckChallengeAnswer(challengeAnswer) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.CheckChallengeAnswer(challengeAnswer);
+) pre challengeAnswer = generatedChallenge;
+
+public GENERATED_CheckControllerCertificate:(seq of char) ==> (bool)
+GENERATED_CheckControllerCertificate(certificateString) == (
+	dcl certificate : seq of char := certificateString;
+	receivedCertificates := receivedCertificates ^ [certificate];
+	return javaObject.CheckControllerCertificate(certificateString);
+);
+
+public GENERATED_DecryptChallenge:(seq of char) ==> (seq of char)
+GENERATED_DecryptChallenge(encryptedChallenge) == (
+	return javaObject.DecryptChallenge(encryptedChallenge);
+);
+
+public GENERATED_CheckSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (bool)
+GENERATED_CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature) == (
+	receivedEffectiveKeys := receivedEffectiveKeys ^ [keyString];
+	javaObject.CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature);
+);
+
+public GENERATED_GenerateEffectiveCertificate:(seq of char) ==> (seq of char)
+GENERATED_GenerateEffectiveCertificate(effectiveKeyString) == (
+	dcl effectiveCertificate : seq of char := javaObject.GenerateEffectiveCertificate(effectiveKeyString);
+	generatedEffectiveCertificates := generatedEffectiveCertificates ^ [effectiveCertificate];
+	return effectiveCertificate;
+) pre effectiveKeyString in set elems receivedEffectiveKeys;
+
+
+public GENERATED_SaveEffectiveCertificate:(seq of char) ==> ()
+GENERATED_SaveEffectiveCertificate(effectiveCertificate) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.SaveEffectiveCertificate(effectiveCertificate);
+) pre effectiveCertificate in set elems generatedEffectiveCertificates;
+
+
+public GENERATED_GetEffectiveCertificateSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GENERATED_GetEffectiveCertificateSignature(controllerIdString,effectiveCertificateString,caCertificateString) == (
+	--Extra VDM expressions can be added to this operation
+	dcl signature : seq of char := javaObject.GetEffectiveCertificateSignature(controllerIdString,effectiveCertificateString,caCertificateString);
+	generatedSignatures := generatedSignatures ^ [signature];
+	usedCACertificate := caCertificateString;
+	return signature;
+) post (effectiveCertificateString in set elems generatedEffectiveCertificates) and (if usedCACertificate~ = nil then true else usedCACertificate = caCertificateString);
+
+functions
+-- TODO Define functions here
+traces
+-- TODO Define Combinatorial Test Traces here
+end KeyVaultProtocolContext

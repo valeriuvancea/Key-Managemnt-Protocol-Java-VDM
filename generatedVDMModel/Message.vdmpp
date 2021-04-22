@@ -1,0 +1,55 @@
+class Message
+types
+public MessageType =
+	(
+		<KEY_VAULT_DISCOVERY_REQUEST> |
+		<KEY_VAULT_DISCOVERY_REPLY> |
+		<JOIN_REQUEST> |
+		<CHALLENGE_SUBMISSION> |
+		<CHALLENGE_ANSWER> |
+		<KEY_VAULT_CERTIFICATE> |
+		<SIGNING_REQUEST> |
+		<SIGNING_REPLY> |
+		<SIGNING_ACK> |
+		<RE_KEY_REQUEST> |
+		<CONTROLLER_DISCOVERY_REQUEST> |
+		<CONTROLLER_DISCOVERY_REPLY> |
+		<CONTROLLER_CERTIFICATE_UPDATE> |
+		<DUMMY_MESSAGE> |
+		<UNKNOWN>
+	);
+values
+
+messageTypeToStringMapping : map MessageType to seq of char =
+{
+	<KEY_VAULT_DISCOVERY_REQUEST> |-> "BroadcastToSearchKeyVault",
+	<KEY_VAULT_DISCOVERY_REPLY> |-> "KeyVaultSearchBroadcastAcknowledgement",
+	<JOIN_REQUEST> |-> "JoinRequest",
+	<CHALLENGE_SUBMISSION> |-> "SendChallenge",
+	<CHALLENGE_ANSWER> |-> "SendChallengeAnswer",
+	<KEY_VAULT_CERTIFICATE> |-> "SendKeyVaultCertificate",
+	<SIGNING_REQUEST> |-> "SendNewEffectivePublicKey",
+	<SIGNING_REPLY> |-> "SendNewEffectiveCertificate",
+	<SIGNING_ACK> |-> "SendNewEffectiveCertificateAcknoledgement",
+	<RE_KEY_REQUEST> |-> "SendReKeyRequest",
+	<CONTROLLER_DISCOVERY_REQUEST> |-> "BroadcastToSearchControllers",
+	<CONTROLLER_DISCOVERY_REPLY> |-> "ControllerSearchBroadcastAcknowledgement",
+	<CONTROLLER_CERTIFICATE_UPDATE> |-> "ControllerCertificateUpdate",
+	<DUMMY_MESSAGE> |-> "DummyMessage"
+};
+
+stringToMessageTypeMapping : map seq of char to MessageType = inverse messageTypeToStringMapping;
+
+instance variables
+-- TODO Define instance variables here
+operations
+-- TODO Define operations here
+functions
+public StringToMessageType: seq of char -> MessageType
+StringToMessageType(typeString) == (
+	stringToMessageTypeMapping(typeString)
+)
+pre typeString in set dom stringToMessageTypeMapping;
+traces
+-- TODO Define Combinatorial Test Traces here
+end Message

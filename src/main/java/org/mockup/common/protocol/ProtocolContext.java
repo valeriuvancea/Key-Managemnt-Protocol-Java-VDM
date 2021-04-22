@@ -126,12 +126,6 @@ public class ProtocolContext implements IReceiverCallback {
         }
     }
 
-    protected void SendMessage(String ipAddress, MessageType messageType, JSONObject message) {
-        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
-        message.put(MessageField.TYPE.Value(), messageType.Value());
-        this.sender.SendMessage(ipAddress, message);
-    }
-
     private class TimeoutTask extends TimerTask {
         private final AtomicBoolean cancelledFlag;
 

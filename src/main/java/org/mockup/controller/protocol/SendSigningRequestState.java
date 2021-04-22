@@ -18,7 +18,8 @@ public class SendSigningRequestState extends ControllerProtocolState {
 
         if (this.GetContext().CheckSigningReplySignature(controllerIdString, effectiveCertificateString,
                 caCertificateString, hashString)) {
-            this.GetContext().SaveEffectiveKeys(effectiveCertificateString);
+
+            this.GetContext().SwitchToEffectivePendingKeys(effectiveCertificateString);
             this.GetContext().GoToNext(new SendSignatureAckState());
         } else {
             this.HandleStateFailure();

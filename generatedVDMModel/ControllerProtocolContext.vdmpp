@@ -1,10 +1,42 @@
 class ControllerProtocolContext
 types
--- TODO Define types here
+
+private ControllerMessages = <None> | <JoinRequest> | <SendChallengeAnswer> | <SendChallenge> | <SendNewEffectivePublicKey> | <SendNewEffectiveCertificateAcknoledgement>;
+
 values
--- TODO Define values here
+
+allowedMessageOrder : map Message`MessageType  to set of Message`MessageType = {
+	<UNKNOWN> |-> {<JOIN_REQUEST>},
+	<JOIN_REQUEST> |-> {<JOIN_REQUEST>, <CHALLENGE_ANSWER>},
+	<CHALLENGE_ANSWER> |-> {<CHALLENGE_ANSWER> , <CHALLENGE_SUBMISSION>},
+	<CHALLENGE_SUBMISSION> |-> {<CHALLENGE_SUBMISSION>, <SIGNING_REQUEST>},
+	<SIGNING_REQUEST> |-> {<SIGNING_REQUEST>, <SIGNING_ACK>},
+	<SIGNING_ACK> |-> {<SIGNING_REQUEST>, <CONTROLLER_CERTIFICATE_UPDATE>, <DUMMY_MESSAGE>},
+	<CONTROLLER_CERTIFICATE_UPDATE> |-> {<SIGNING_REQUEST>, <CONTROLLER_CERTIFICATE_UPDATE>, <DUMMY_MESSAGE>},
+	<DUMMY_MESSAGE> |-> {<SIGNING_REQUEST>, <CONTROLLER_CERTIFICATE_UPDATE>, <DUMMY_MESSAGE>}
+};
+
 instance variables
 	javaObject: generated_vdm_VDMControllerProtocolContext := new generated_vdm_VDMControllerProtocolContext();
+
+	generatedChallenge: seq of int := [];
+	pendingEffectivePublicKey: seq of char := [];
+	pendingEffectivePrivateKey: seq of char := [];
+
+	signatures : seq of seq of char := [];
+	inv forall i, j in set inds signatures & i <> j => signatures(i) <> signatures(j);
+
+	effectiveCertificates : seq of seq of char := [];
+	inv forall i, j in set inds effectiveCertificates & i <> j => effectiveCertificates(i) <> effectiveCertificates(j);
+
+	effectivePublicKeys : seq of seq of char := [];
+	inv forall i, j in set inds effectivePublicKeys & i <> j => effectivePublicKeys(i) <> effectivePublicKeys(j); 
+
+	effectivePrivateKeys : seq of seq of char := [];
+	inv forall i, j in set inds effectivePrivateKeys & i <> j => effectivePrivateKeys(i) <> effectivePrivateKeys(j);
+
+	private previousMessage : Message`MessageType := <UNKNOWN>;
+	
 operations
 public setJavaObject: (seq of char) ==> ()
 setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
@@ -12,14 +44,73 @@ setJavaObject(vdmObjectName) == javaObject.setJavaObject(vdmObjectName);
 public GENERATED_GenerateChallenge:() ==> (seq of int)
 GENERATED_GenerateChallenge() == (
 	--Extra VDM expressions can be added to this operation
-	javaObject.GenerateChallenge();
+	generatedChallenge := javaObject.GenerateChallenge();
+	return generatedChallenge;
 );
+
+public GENERATED_EncryptChallenge:(seq of int) ==> (seq of int)
+GENERATED_EncryptChallenge(challenge) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.EncryptChallenge(challenge);
+) pre generatedChallenge = challenge;
+
+public GENERATED_CheckChallengeAnswer:(seq of int) ==> (bool)
+GENERATED_CheckChallengeAnswer(challengeAnswer) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.CheckChallengeAnswer(challengeAnswer);
+) pre challengeAnswer = generatedChallenge;
 
 public GENERATED_CheckKeyVaultCertificate:(seq of char) ==> (bool)
 GENERATED_CheckKeyVaultCertificate(certificateString) == (
 	--Extra VDM expressions can be added to this operation
 	javaObject.CheckKeyVaultCertificate(certificateString);
 );
+
+public GENERATED_DecryptChallenge:(seq of char) ==> (seq of char)
+GENERATED_DecryptChallenge(encryptedChallenge) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.DecryptChallenge(encryptedChallenge);
+);
+
+public GENERATED_GetEffectivePendingPublicKey:() ==> (seq of char)
+GENERATED_GetEffectivePendingPublicKey() == (
+	--Extra VDM expressions can be added to this operation
+	pendingEffectivePublicKey := javaObject.GetEffectivePendingPublicKey();
+	return pendingEffectivePublicKey;
+);
+
+public GENERATED_GetEffectivePendingPrivateKey:() ==> (seq of char)
+GENERATED_GetEffectivePendingPrivateKey() == (
+	--Extra VDM expressions can be added to this operation
+	pendingEffectivePrivateKey := javaObject.GetEffectivePendingPrivateKey();
+	return pendingEffectivePrivateKey;
+);
+
+public GENERATED_GetSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (seq of char)
+GENERATED_GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath) == (
+	dcl newSignature: seq of char := javaObject.GetSigningRequestSignature(controllerIdString,keyString,signingKeyPath);
+	signatures := signatures ^ [newSignature];
+	return newSignature;
+)
+pre keyString = pendingEffectivePublicKey;
+
+public GENERATED_SaveEffectiveKeys:(seq of char) * (seq of char) * (seq of char) ==> ()
+GENERATED_SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectivePrivateKeyString) == (
+	--Extra VDM expressions can be added to this operation
+	effectiveCertificates := effectiveCertificates ^ [effectiveCertificateString];
+	effectivePublicKeys := effectivePublicKeys ^ [effectivePublicKeyString];
+	effectivePrivateKeys := effectivePrivateKeys ^ [effectivePrivateKeyString];
+	javaObject.SaveEffectiveKeys(effectiveCertificateString,effectivePublicKeyString,effectivePrivateKeyString);
+) pre effectivePublicKeyString = pendingEffectivePublicKey and effectivePrivateKeyString = pendingEffectivePrivateKey;
+
+public GENERATED_SendMessage:(seq of char) * (seq of char) * (seq of char) ==> ()
+GENERATED_SendMessage(address,type,contents) == (
+		 previousMessage := Message`StringToMessageType(type);
+		 return javaObject.SendMessage(address,type,contents);
+) pre (
+	    let messageType : Message`MessageType = Message`StringToMessageType(type) in (
+	        messageType in set dom allowedMessageOrder and
+          	messageType in set allowedMessageOrder(previousMessage)));
 
 functions
 -- TODO Define functions here

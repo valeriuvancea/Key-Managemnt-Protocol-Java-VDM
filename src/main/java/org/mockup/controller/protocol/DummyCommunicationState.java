@@ -11,7 +11,7 @@ public class DummyCommunicationState extends OperationalState {
     private final Logger logger = LoggerFactory.getLogger(DummyCommunicationState.class);
 
     public DummyCommunicationState() {
-        super(300, MessageType.DUMMY_MESSAGE);
+        super(10, MessageType.DUMMY_MESSAGE);
     }
 
     @Override
