@@ -164,6 +164,12 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         }
     }
 
+    public void SendDecryptedChallenge(String decryptedChallenge) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
+        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
+    }
+
     @VDMOperation(postCondition = "RESULT = true")
     public Boolean CheckControllerCertificate(String certificateString) {
         /*
@@ -177,12 +183,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             logger.error("Failed to validate controller certificate");
             return false;
         }
-    }
-
-    public void SendDecryptedChallenge(String decryptedChallenge) {
-        JSONObject contents = new JSONObject();
-        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
-        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
     }
 
     public void SaveEffectiveCertificate(String effectiveCertificate) {

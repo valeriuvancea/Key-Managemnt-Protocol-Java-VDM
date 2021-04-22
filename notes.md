@@ -86,3 +86,12 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 9. Make sure when new effective keys are saved, they match the previously generated pending effective keys.
 10. Make sure that saved effective certificate and public and private key values never repeat.
 11. Make sure that when a certificate is sent to another controller, it matches the latest saved certificate.
+
+## Key vault
+1. Verify generated challenge length.
+2. Verify that the encrypted challenge is different from the original one. 
+3. Verify that the challenge being encrypted is the same as the generated challenge.
+4. Verify that the checked challenge matches the generated challenge.
+5. Verify that the check of the challenge yields true.
+6. Check that controller certificate check yields true.
+7. Check that no duplicate controller certificate is checked.

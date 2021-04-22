@@ -17,6 +17,7 @@ instance variables
 	javaObject: generated_vdm_VDMKeyVaultProtocolContext := new generated_vdm_VDMKeyVaultProtocolContext();
 
 	private generatedChallenge: seq of int := [];
+	private decryptedChallenge: seq of char := [];
 
 	private receivedCertificates : seq of seq of char := [];
 		inv forall i, j in set inds receivedCertificates & i <> j => receivedCertificates(i) <> receivedCertificates(j);
@@ -62,8 +63,7 @@ GENERATED_CheckControllerCertificate(certificateString) == (
 
 public GENERATED_DecryptChallenge:(seq of char) ==> (seq of char)
 GENERATED_DecryptChallenge(encryptedChallenge) == (
-	--Extra VDM expressions can be added to this operation
-	javaObject.DecryptChallenge(encryptedChallenge);
+	return javaObject.DecryptChallenge(encryptedChallenge);
 );
 
 functions
