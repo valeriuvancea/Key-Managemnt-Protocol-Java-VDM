@@ -85,6 +85,13 @@ GENERATED_GenerateEffectiveCertificate(effectiveKeyString) == (
 	return effectiveCertificate;
 ) pre effectiveKeyString in set elems receivedEffectiveKeys;
 
+
+public GENERATED_SaveEffectiveCertificate:(seq of char) ==> ()
+GENERATED_SaveEffectiveCertificate(effectiveCertificate) == (
+	--Extra VDM expressions can be added to this operation
+	javaObject.SaveEffectiveCertificate(effectiveCertificate);
+) pre effectiveCertificate in set elems generatedEffectiveCertificates;
+
 functions
 -- TODO Define functions here
 traces

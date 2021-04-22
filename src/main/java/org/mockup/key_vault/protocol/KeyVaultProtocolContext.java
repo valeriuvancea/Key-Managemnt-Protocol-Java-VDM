@@ -221,6 +221,7 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         }
     }
 
+    @VDMOperation()
     public void SaveEffectiveCertificate(String effectiveCertificate) {
         this.controllerEffectiveCertificate = Common.StringToByteArray(effectiveCertificate);
         this.hasJoined = true;
