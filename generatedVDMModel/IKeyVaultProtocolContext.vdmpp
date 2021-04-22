@@ -29,6 +29,10 @@ pure public CheckControllerCertificate:(seq of char) ==> (bool)
 CheckControllerCertificate(certificateString) == is not yet specified
 post RESULT = true;
 
+pure public CheckSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (bool)
+CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature) == is not yet specified
+post RESULT = true;
+
 public SendMessage:(seq of char) * (seq of char) ==> ()
 SendMessage(type,contents) == is not yet specified;
 

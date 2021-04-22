@@ -126,6 +126,12 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         return this.controllerCertificate;
     }
 
+    public void SendDecryptedChallenge(String decryptedChallenge) {
+        JSONObject contents = new JSONObject();
+        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
+        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
+    }
+
     /* To annotate: */
     @VDMOperation(postCondition = "len RESULT = 128")
     public byte[] GenerateChallenge() {
@@ -164,12 +170,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         }
     }
 
-    public void SendDecryptedChallenge(String decryptedChallenge) {
-        JSONObject contents = new JSONObject();
-        contents.put(MessageField.DECRYPTED_CHALLENGE.Value(), decryptedChallenge);
-        this.SendMessage(MessageType.CHALLENGE_ANSWER.Value(), contents.toString());
-    }
-
     @VDMOperation(postCondition = "RESULT = true")
     public Boolean CheckControllerCertificate(String certificateString) {
         /*
@@ -181,6 +181,25 @@ public class KeyVaultProtocolContext extends ProtocolContext {
             return Crypto.IsCertificateValid(certificate, KeyVaultProtocolContext.CERT_M_FILE_PATH);
         } catch (Exception e) {
             logger.error("Failed to validate controller certificate");
+            return false;
+        }
+    }
+
+    @VDMOperation(postCondition = "RESULT = true")
+    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature) {
+        byte[] certificate = this.controllerEffectiveCertificate;
+        if (!this.HasJoined()) {
+            certificate = this.controllerCertificate;
+        }
+
+        String dataString = controllerIdString.concat(keyString);
+        byte[] data = Common.StringToByteArray(dataString);
+        byte[] signature = Common.StringToByteArray(expectedSignature);
+
+        try {
+            return Crypto.IsSignatureValid(certificate, data, signature);
+        } catch (Exception e) {
+            logger.error("Failed to verify signing request signature.");
             return false;
         }
     }
@@ -212,24 +231,6 @@ public class KeyVaultProtocolContext extends ProtocolContext {
         } catch (Exception e) {
             logger.error("Failed to generate signature for signing reply.");
             return null;
-        }
-    }
-
-    public Boolean CheckSigningRequestSignature(String controllerIdString, String keyString, String expectedSignature) {
-        byte[] certificate = this.controllerEffectiveCertificate;
-        if (!this.HasJoined()) {
-            certificate = this.controllerCertificate;
-        }
-
-        String dataString = controllerIdString.concat(keyString);
-        byte[] data = Common.StringToByteArray(dataString);
-        byte[] signature = Common.StringToByteArray(expectedSignature);
-
-        try {
-            return Crypto.IsSignatureValid(certificate, data, signature);
-        } catch (Exception e) {
-            logger.error("Failed to verify signing request signature.");
-            return false;
         }
     }
 

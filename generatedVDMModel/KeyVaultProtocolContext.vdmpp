@@ -19,8 +19,11 @@ instance variables
 	private generatedChallenge: seq of int := [];
 	private decryptedChallenge: seq of char := [];
 
-	private receivedCertificates : seq of seq of char := [];
+	private static receivedCertificates : seq of seq of char := [];
 		inv forall i, j in set inds receivedCertificates & i <> j => receivedCertificates(i) <> receivedCertificates(j);
+
+	private static receivedEffectiveKeys : seq of seq of char := [];
+		inv forall i, j in set inds receivedEffectiveKeys & i <> j => receivedEffectiveKeys(i) <> receivedEffectiveKeys(j);
 
 	private previousMessage : Message`MessageType := <UNKNOWN>;
 operations
@@ -64,6 +67,12 @@ GENERATED_CheckControllerCertificate(certificateString) == (
 public GENERATED_DecryptChallenge:(seq of char) ==> (seq of char)
 GENERATED_DecryptChallenge(encryptedChallenge) == (
 	return javaObject.DecryptChallenge(encryptedChallenge);
+);
+
+public GENERATED_CheckSigningRequestSignature:(seq of char) * (seq of char) * (seq of char) ==> (bool)
+GENERATED_CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature) == (
+	receivedEffectiveKeys := receivedEffectiveKeys ^ [keyString];
+	javaObject.CheckSigningRequestSignature(controllerIdString,keyString,expectedSignature);
 );
 
 functions
