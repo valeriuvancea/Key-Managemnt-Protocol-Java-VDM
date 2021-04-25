@@ -16,3 +16,7 @@ The `JAVA DEPENDENCIES` view allows you to manage your dependencies. More detail
 ## Controller
 
 ![](diagrams/controller_state_machine.png)
+
+## Key Vault
+
+![](diagrams/key_vault_state_machine.png)
