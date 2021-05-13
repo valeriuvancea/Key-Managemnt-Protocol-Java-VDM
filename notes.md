@@ -71,6 +71,14 @@
 ## Keys/Encryption/Decryption/Signing/Verification
 Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 
+# TPMs used in:
+* GenerateChallenge
+* DecryptChallenge
+* GetSigningRequestSignature
+* GenerateEffectivePendingKeys
+* GenerateKeyPairTPM
+* DecryptMessageFromOtherController
+
 # VDMAnnotations
 
 ## Controller
@@ -79,10 +87,15 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 2. Verify that the encrypted challenge is different from the original one. 
 3. Verify that the challenge being encrypted is the same as the generated challenge.
 4. Verify that the checked challenge matches the generated challenge.
+    GENERATED_CheckChallengeAnswer. Stash the challenge when it is being generated. Verify that the challenge checked (as received from the reply) matches the on that was generated.
 5. Verify that the check of the challenge yields true.
+    GENERATED_CheckChallengeAnswer
 6. Verify that the key vault certificate verification yields true.
+    GENERATED_CheckKeyVaultCertificate
 7. Verify that the function generating the signature for signing request is always presented with the pending effective public key value.
+    Stash the pending key when it is retrieved. Check that the stashed value matches when the signature is being generated. 
 8. Verify that the function generating signing request always returns an unique value.
+    Stash all values generated. Have an invariant for no duplicates.
 9. Make sure when new effective keys are saved, they match the previously generated pending effective keys.
 10. Make sure that saved effective certificate and public and private key values never repeat.
 
@@ -93,10 +106,14 @@ Examples can be found: https://github.com/tpm2-software/tpm2-tss-engine
 4. Verify that the checked challenge matches the generated challenge.
 5. Verify that the check of the challenge yields true.
 6. Check that controller certificate check yields true.
+    GENERATED_CheckControllerCertificate
 7. Check that no duplicate controller certificate is checked - tested.
+    GENERATED_CheckControllerCertificate stashes the certificate. Invariant makes sure there's no duplicates.
 8. Check no duplicate effective key is received.
 9. Check that effective certificates are only generated for a key that has been received.
+    GENERATED_GenerateEffectiveCertificate. Stash all received effective keys. Make sure the generate effective certificate operation is only on those keys.
 10. Check that no duplicate effective certificate is generated.
 11. Check that signatures are only generated for signed certificates.
 12. Check that only one value of a certificate authority's certificate is used for generating effective certificates.
+    GENERATED_GetEffectiveCertificateSignature generates signature for the message delivering cert_ca. Make sure the value of the cert_ca is always the same.
 13. Check that all generated signatures are unique.
