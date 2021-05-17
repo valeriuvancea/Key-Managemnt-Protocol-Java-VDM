@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.message.Message;
 import org.json.JSONObject;
 import org.mockup.common.Common;
 import org.mockup.common.communication.IReceiverCallback;
@@ -14,6 +15,7 @@ import org.mockup.common.discovery.IDiscoveryCallback;
 import org.mockup.common.discovery.KeyVaultDiscovery;
 import org.mockup.common.protocol.IContextTerminatedCallback;
 import org.mockup.common.protocol.MessageField;
+import org.mockup.common.protocol.MessageType;
 import org.mockup.key_vault.protocol.KeyVaultProtocolContext;
 import org.mockup.key_vault.protocol.ReceiveJoinRequestState;
 import org.slf4j.Logger;
@@ -62,16 +64,26 @@ public class KeyVault implements IDiscoveryCallback, IReceiverCallback, IContext
 
     @Override
     public void BroadcastReceived(String sourceIpAddress, String controllerIdString) {
-        if (this.contextsMap.containsKey(controllerIdString)) {
-            return;
-        }
 
         try {
+            Sender sender = new Sender();
+
+            JSONObject broadcastReply = new JSONObject();
+            broadcastReply.put(MessageField.CONTROLLER_ID.Value(), controllerIdString);
+            broadcastReply.put(MessageField.TYPE.Value(), MessageType.KEY_VAULT_DISCOVERY_REPLY.Value());
+
+            sender.SendMessage(sourceIpAddress, broadcastReply);
+            this.logger.info("Replied to key vault search broadcast from {}.", controllerIdString);
+
+            if (this.contextsMap.containsKey(controllerIdString)) {
+                return;
+            }
+
             KeyVaultProtocolContext context = new KeyVaultProtocolContext(sourceIpAddress,
                     Common.StringToByteArray(controllerIdString), new Sender(), this);
             this.contextsMap.put(controllerIdString, context);
-            this.logger.info("Key vault context associated with {} was created and started.", controllerIdString);
             context.Start(new ReceiveJoinRequestState());
+            this.logger.info("Key vault context associated with {} was created and started.", controllerIdString);
         } catch (IOException e) {
             logger.error("Failed to create new key vault protocol context.");
         }
