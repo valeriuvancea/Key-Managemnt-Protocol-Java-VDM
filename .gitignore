@@ -5,3 +5,5 @@ deployment_store/*
 target/*
 .classpath
 bin/*
+generatedVDMModel/IControllerProtocolContext.vdmpp
+generatedVDMModel/IKeyVaultProtocolContext.vdmpp
