@@ -1,6 +1,7 @@
 package org.mockup.key_vault.protocol;
 
 import org.json.JSONObject;
+import org.mockup.common.Common;
 import org.mockup.common.protocol.MessageField;
 import org.mockup.common.protocol.MessageType;
 
@@ -11,7 +12,7 @@ public class ReceiveChallengeAnswerState extends KeyVaultProtocolState {
 
     @Override
     public void OnMessageReceived(String senderIpAddress, JSONObject message) {
-        String answer = message.getString(MessageField.DECRYPTED_CHALLENGE.Value());
+        byte[] answer = Common.StringToByteArray(message.getString(MessageField.DECRYPTED_CHALLENGE.Value()));
 
         if (this.GetContext().CheckChallengeAnswer(answer)) {
             this.GetContext().GoToNext(new ReceiveChallengeState());

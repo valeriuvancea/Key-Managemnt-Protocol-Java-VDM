@@ -19,13 +19,13 @@
             "projectName": "mockup"
         },
         {
-            "name": "remote_debug",
+            "name": "key_vault_debug",
             "type": "java",
             "request": "attach",
-            "hostName": "${config:remote_debug_address}",
+            "hostName": "${config:key_vault_address}",
             "port": 8000,
-            "preLaunchTask": "remote_debug_start",
-            "postDebugTask": "remote_debug_stop_server"
+            "preLaunchTask": "key_vault_debug_start",
+            "postDebugTask": "key_vault_debug_stop_server"
         },
         {
             "name": "controller_1_debug",

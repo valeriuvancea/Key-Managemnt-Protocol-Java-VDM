@@ -103,8 +103,10 @@ public class ProtocolContext implements IReceiverCallback {
         synchronized (this) {
             logger.debug("{} associated state {} stopped.", this.associatedIdString,
                     this.currentState.getClass().getName());
-            this.timeoutTask.cancel();
             this.currentState = null;
+            if (this.timeoutTask != null) {
+                this.timeoutTask.cancel();
+            }
         }
     }
 
@@ -122,12 +124,6 @@ public class ProtocolContext implements IReceiverCallback {
                 this.timeoutTimer.schedule(this.timeoutTask, timeoutS * 1000);
             }
         }
-    }
-
-    protected void SendMessage(String ipAddress, MessageType messageType, JSONObject message) {
-        message.put(MessageField.CONTROLLER_ID.Value(), this.associatedIdString);
-        message.put(MessageField.TYPE.Value(), messageType.Value());
-        this.sender.SendMessage(ipAddress, message);
     }
 
     private class TimeoutTask extends TimerTask {
